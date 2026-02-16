@@ -43,6 +43,16 @@ const GAMES = [
         color1: '#E879F9',
         color2: '#701A75',
         accent: '#FDE047'
+    },
+    {
+        id: 'claw-machine',
+        name: '인형뽑기',
+        emoji: '🧸',
+        description: '크레인으로 인형을 뽑아라!',
+        path: 'games/claw-machine/index.html',
+        color1: '#FF69B4',
+        color2: '#8B0045',
+        accent: '#FFD700'
     }
 ];
 
