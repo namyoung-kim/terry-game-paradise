@@ -1420,6 +1420,27 @@ function getCharCardLayout() {
     return { cols, cardW, cardH, gap, startX, startY };
 }
 
+// ===== 오버레이 클릭/터치 핸들러 (오버레이가 캔버스 위에 있으므로 별도 처리) =====
+startScreen.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (state === 'MENU') showCharacterSelect();
+});
+startScreen.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (state === 'MENU') showCharacterSelect();
+});
+
+gameOverScreen.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (state === 'GAME_OVER' && !falling) showCharacterSelect();
+});
+gameOverScreen.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (state === 'GAME_OVER' && !falling) showCharacterSelect();
+});
+
 gameCanvas.addEventListener('click', (e) => {
     const rect = gameCanvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
