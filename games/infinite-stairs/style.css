@@ -1,0 +1,428 @@
+/* ===== Reset & Base ===== */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background: #0a0a1a;
+    font-family: 'Press Start 2P', monospace;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* ===== Overlay (Start / Game Over) ===== */
+.overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    background: rgba(5, 5, 20, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: opacity 0.4s ease;
+}
+
+.overlay.hidden {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.overlay-content {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* ===== Title ===== */
+.game-title {
+    font-size: clamp(2rem, 8vw, 4.5rem);
+    background: linear-gradient(135deg, #ff6bcb, #ffb86c, #f8ff6b, #6bffb8, #6bcbff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease infinite;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 40px rgba(255, 107, 203, 0.3);
+}
+
+.subtitle {
+    font-size: clamp(0.6rem, 2vw, 1rem);
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.5em;
+    margin-bottom: 3rem;
+}
+
+/* ===== Instructions ===== */
+.instructions {
+    margin-bottom: 2.5rem;
+}
+
+.key-hint {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.key-label {
+    font-size: clamp(0.4rem, 1.2vw, 0.6rem);
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.05em;
+    margin-right: 0.8rem;
+}
+
+.key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(145deg, #2a2a4a, #1a1a35);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1.2rem;
+    font-family: 'Press Start 2P', monospace;
+    box-shadow:
+        0 4px 0 #0a0a1a,
+        0 6px 12px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.key.wide {
+    width: auto;
+    padding: 0 16px;
+    font-size: 0.7rem;
+}
+
+.instructions p {
+    font-size: clamp(0.5rem, 1.5vw, 0.75rem);
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.8;
+}
+
+/* ===== Start Prompt ===== */
+.start-prompt {
+    font-size: clamp(0.45rem, 1.2vw, 0.65rem);
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.1em;
+}
+
+/* ===== Game Over ===== */
+.game-over-title {
+    font-size: clamp(1.5rem, 6vw, 3rem);
+    color: #ff4757;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 30px rgba(255, 71, 87, 0.5);
+    animation: glitch 2s infinite;
+}
+
+.score-display {
+    margin-bottom: 1.2rem;
+}
+
+.final-score-label {
+    font-size: clamp(0.5rem, 1.5vw, 0.7rem);
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.3em;
+}
+
+.final-score {
+    font-size: clamp(2rem, 8vw, 4rem);
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.best-score {
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    color: #ffd700;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.new-record {
+    font-size: clamp(0.6rem, 2vw, 0.9rem);
+    color: #ffd700;
+    margin-bottom: 1.5rem;
+    animation: pulse 0.8s ease infinite;
+}
+
+.new-record.hidden {
+    display: none;
+}
+
+/* ===== HUD ===== */
+#hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 24px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#hud.hidden {
+    display: none;
+}
+
+#scoreHud {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    color: #fff;
+    text-shadow:
+        0 2px 0 rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+#timerBar {
+    width: min(300px, 60vw);
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+#timerFill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff4757, #ffb86c, #2ed573);
+    border-radius: 4px;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px rgba(46, 213, 115, 0.4);
+}
+
+/* ===== Animations ===== */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(0.98);
+    }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes glitch {
+
+    0%,
+    90%,
+    100% {
+        transform: translate(0);
+    }
+
+    92% {
+        transform: translate(-3px, 1px);
+    }
+
+    94% {
+        transform: translate(3px, -1px);
+    }
+
+    96% {
+        transform: translate(-2px, -1px);
+    }
+
+    98% {
+        transform: translate(2px, 1px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.overlay-content>* {
+    animation: fadeIn 0.6s ease backwards;
+}
+
+.overlay-content>*:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.overlay-content>*:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.overlay-content>*:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.overlay-content>*:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.overlay-content>*:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.overlay-content>*:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.overlay-content>*:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+/* ===== 홈 버튼 ===== */
+#homeBtn {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 20;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    font-size: 22px;
+    line-height: 44px;
+    text-align: center;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.2s, transform 0.15s;
+    touch-action: manipulation;
+}
+
+#homeBtn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.1);
+}
+
+#homeBtn:active {
+    transform: scale(0.92);
+}
+
+/* ===== 모바일 터치 버튼 ===== */
+#touchControls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 15;
+    display: flex;
+    pointer-events: none;
+}
+
+.touch-btn {
+    pointer-events: auto;
+    flex: 1;
+    height: 110px;
+    border: none;
+    font-size: 28px;
+    font-family: 'Press Start 2P', monospace;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: background 0.1s;
+}
+
+.touch-label {
+    font-size: 9px;
+    opacity: 0.7;
+}
+
+.touch-btn-left {
+    background: rgba(65, 105, 225, 0.3);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+    color: #8ab4ff;
+}
+
+.touch-btn-left:active {
+    background: rgba(65, 105, 225, 0.6);
+}
+
+.touch-btn-right {
+    background: rgba(255, 107, 87, 0.3);
+    border-radius: 0;
+    color: #ffb4a5;
+}
+
+.touch-btn-right:active {
+    background: rgba(255, 107, 87, 0.6);
+}
+
+/* ===== 세로 모드 대응 ===== */
+@media (orientation: portrait) {
+    .overlay-content {
+        padding: 1.5rem;
+    }
+
+    .game-title {
+        font-size: clamp(1.5rem, 10vw, 3rem);
+    }
+
+    .key-hint {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    #hud {
+        padding: 12px 16px;
+    }
+
+    #scoreHud {
+        font-size: clamp(1rem, 5vw, 1.5rem);
+    }
+}

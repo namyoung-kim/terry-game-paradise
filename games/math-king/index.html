@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>암산왕 | 태리의 게임천국</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- 답 입력 UI (게임 중에만 표시) -->
+    <div id="answerBox" style="display:none;">
+        <input id="answerInput" type="number" inputmode="numeric" pattern="[0-9\-]*" placeholder="정답 입력"
+            autocomplete="off">
+        <button id="submitBtn">제출</button>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>

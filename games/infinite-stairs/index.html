@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무한의 계단 | Infinite Stairs</title>
+    <meta name="description" content="끝없이 올라가는 계단! 방향키로 올바른 방향을 선택하고 최고 점수에 도전하세요.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- 시작 화면 -->
+    <div id="startScreen" class="overlay">
+        <div class="overlay-content">
+            <h1 class="game-title">무한의<br>계단</h1>
+            <p class="subtitle">INFINITE STAIRS</p>
+            <div class="instructions">
+                <div class="key-hint">
+                    <span class="key wide">SPACE</span>
+                    <span class="key-label">직진</span>
+                    <span class="key">↑↓←→</span>
+                    <span class="key-label">방향전환</span>
+                </div>
+                <p>계단 방향에 맞춰 올라가세요!</p>
+            </div>
+            <p class="start-prompt pulse">화면을 터치하거나 ENTER를 눌러 시작</p>
+        </div>
+    </div>
+
+    <!-- 게임 오버 화면 -->
+    <div id="gameOverScreen" class="overlay hidden">
+        <div class="overlay-content">
+            <h2 class="game-over-title">GAME OVER</h2>
+            <div class="score-display">
+                <p class="final-score-label">SCORE</p>
+                <p id="finalScore" class="final-score">0</p>
+            </div>
+            <p id="maxComboDisplay"
+                style="color:#FF6347; font-family:'Press Start 2P',monospace; font-size:10px; margin:8px 0;"></p>
+            <div class="score-display best">
+                <p class="final-score-label">BEST</p>
+                <p id="bestScore" class="final-score best-score">0</p>
+            </div>
+            <p id="newRecord" class="new-record hidden">🎉 NEW RECORD! 🎉</p>
+            <p class="start-prompt pulse">화면을 터치하거나 ENTER를 눌러 재시작</p>
+        </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+        <div id="scoreHud">0</div>
+        <div id="timerBar">
+            <div id="timerFill"></div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>
