@@ -721,6 +721,16 @@ function calculateStageScore() {
     };
 }
 
+// ===== 스테이지 클리어 버튼 Y좌표 계산 =====
+function getStageClearButtonY() {
+    const centerY = H() * 0.15;
+    const titleSize = Math.min(36, W() * 0.05);
+    const lineH = Math.min(32, H() * 0.05);
+    const startY = centerY + titleSize + 20;
+    const totalY = startY + 4 * lineH + lineH; // 4 items + 1 spacing
+    return totalY + lineH * 2;
+}
+
 // ===== 스테이지 클리어 화면 =====
 function drawStageClear() {
     drawBackground();
@@ -786,7 +796,7 @@ function drawStageClear() {
         ctx.fillText(`총 ${score}점`, W() / 2, totalY);
 
         // 다음 스테이지 or 최종 결과
-        const btnY = totalY + lineH * 2;
+        const btnY = getStageClearButtonY();
         const isLast = currentStage >= STAGES.length - 1;
 
         drawButton(
@@ -990,7 +1000,7 @@ canvas.addEventListener('click', (e) => {
 
     if (gameState === 'STAGE_CLEAR') {
         const isLast = currentStage >= STAGES.length - 1;
-        const btnY = H() * 0.15 + Math.min(36, W() * 0.05) + 20 + 4 * Math.min(32, H() * 0.05) + Math.min(32, H() * 0.05) * 2;
+        const btnY = getStageClearButtonY();
 
         if (isInButton(mx, my, W() / 2, btnY)) {
             if (isLast) {
