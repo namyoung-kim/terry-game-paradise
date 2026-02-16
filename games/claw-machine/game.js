@@ -559,14 +559,15 @@ function drawGrabButton() {
     grabButton.y = by;
     grabButton.radius = radius;
 
-    const canGrab = gameState === STATE.PLAYING;
+    const canGrab = gameState === STATE.PLAYING || gameState === STATE.DROPPING;
     grabButton.enabled = canGrab;
 
     ctx.save();
 
     // 버튼 글로우
     if (canGrab) {
-        ctx.shadowColor = '#FF3333';
+        const glowColor = gameState === STATE.DROPPING ? '#44FF44' : '#FF3333';
+        ctx.shadowColor = glowColor;
         ctx.shadowBlur = 15 + Math.sin(time * 3) * 8;
     }
 
@@ -574,14 +575,19 @@ function drawGrabButton() {
     const pressOffset = grabButton.pressed ? 3 : 0;
 
     // 버튼 그림자/베이스
-    ctx.fillStyle = '#660000';
+    ctx.fillStyle = gameState === STATE.DROPPING ? '#005500' : '#660000';
     ctx.beginPath();
     ctx.arc(bx, by + 4, radius, 0, Math.PI * 2);
     ctx.fill();
 
     // 메인 버튼
     const btnGrad = ctx.createRadialGradient(bx - radius * 0.2, by - radius * 0.2 + pressOffset, 0, bx, by + pressOffset, radius);
-    if (canGrab) {
+    if (gameState === STATE.DROPPING) {
+        // 하강 중 → 초록색 (잡기!)
+        btnGrad.addColorStop(0, '#55FF55');
+        btnGrad.addColorStop(0.7, '#22CC22');
+        btnGrad.addColorStop(1, '#009900');
+    } else if (canGrab) {
         btnGrad.addColorStop(0, '#FF5555');
         btnGrad.addColorStop(0.7, '#DD2222');
         btnGrad.addColorStop(1, '#AA0000');
@@ -602,18 +608,19 @@ function drawGrabButton() {
     ctx.fill();
 
     // 버튼 테두리
-    ctx.strokeStyle = canGrab ? '#FF6666' : '#777';
+    ctx.strokeStyle = gameState === STATE.DROPPING ? '#66FF66' : canGrab ? '#FF6666' : '#777';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(bx, by + pressOffset, radius, 0, Math.PI * 2);
     ctx.stroke();
 
-    // 텍스트
+    // 텍스트 (상태에 따라 변경)
     ctx.fillStyle = canGrab ? '#fff' : '#999';
     ctx.font = `bold ${Math.min(13, radius * 0.32)}px 'Press Start 2P', monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('뽑기!', bx, by + pressOffset);
+    const btnText = gameState === STATE.DROPPING ? '잡기!' : '뽑기!';
+    ctx.fillText(btnText, bx, by + pressOffset);
 
     ctx.restore();
 
@@ -701,30 +708,87 @@ function drawReadyScreen() {
     const time = Date.now() * 0.001;
 
     // 반투명 오버레이
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
     ctx.fillRect(0, 0, W(), H());
 
     // 타이틀
-    const titleSize = Math.min(32, W() * 0.06);
+    const titleSize = Math.min(28, W() * 0.055);
     ctx.save();
     ctx.shadowColor = '#FF69B4';
     ctx.shadowBlur = 20;
     ctx.font = `bold ${titleSize}px 'Press Start 2P', monospace`;
     ctx.textAlign = 'center';
     ctx.fillStyle = '#FF69B4';
-    ctx.fillText('🧸 인형뽑기 🧸', W() / 2, H() * 0.33);
+    ctx.fillText('🧸 인형뽑기 🧸', W() / 2, H() * 0.18);
     ctx.restore();
 
-    // 스테이지 표시
-    ctx.font = `${Math.min(16, W() * 0.035)}px 'Press Start 2P', monospace`;
+    // 스테이지
+    ctx.font = `${Math.min(14, W() * 0.03)}px 'Press Start 2P', monospace`;
     ctx.fillStyle = '#FFD700';
-    ctx.fillText(`스테이지 ${currentStage}`, W() / 2, H() * 0.45);
+    ctx.fillText(`스테이지 ${currentStage}`, W() / 2, H() * 0.27);
 
-    // 안내
+    // === 조작 안내 패널 ===
+    const panelW = Math.min(420, W() * 0.8);
+    const panelH = Math.min(260, H() * 0.42);
+    const panelX = (W() - panelW) / 2;
+    const panelY = H() * 0.32;
+
+    // 패널 배경
+    ctx.fillStyle = 'rgba(20, 10, 40, 0.85)';
+    roundRect(panelX, panelY, panelW, panelH, 14);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 105, 180, 0.5)';
+    ctx.lineWidth = 2;
+    roundRect(panelX, panelY, panelW, panelH, 14);
+    ctx.stroke();
+
+    const instrFont = Math.min(10, W() * 0.02);
+    const lineH = instrFont * 2.8;
+    let ty = panelY + lineH * 1.2;
+
+    // 패널 타이틀
+    ctx.font = `bold ${Math.min(13, W() * 0.025)}px 'Press Start 2P', monospace`;
+    ctx.fillStyle = '#FFD700';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎮 조작법 🎮', W() / 2, ty);
+    ty += lineH * 1.3;
+
+    ctx.font = `${instrFont}px 'Press Start 2P', monospace`;
+    ctx.textAlign = 'center';
+
+    // 조작법 항목
+    const instructions = [
+        { icon: '🕹️', text: '조이스틱 / 방향키', desc: '크레인 이동', color: '#4FC3F7' },
+        { icon: '🔴', text: '버튼 1번째', desc: '집게 내리기 시작', color: '#FF5555' },
+        { icon: '🟢', text: '버튼 2번째', desc: '원하는 깊이에서 잡기!', color: '#55FF55' },
+    ];
+
+    for (const instr of instructions) {
+        // 아이콘
+        ctx.fillStyle = instr.color;
+        ctx.fillText(`${instr.icon} ${instr.text}`, W() / 2, ty);
+        ty += lineH * 0.7;
+
+        // 설명
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.font = `${Math.max(7, instrFont * 0.8)}px 'Press Start 2P', monospace`;
+        ctx.fillText(`→ ${instr.desc}`, W() / 2, ty);
+        ty += lineH;
+
+        ctx.font = `${instrFont}px 'Press Start 2P', monospace`;
+    }
+
+    // 등급 안내
+    ty += lineH * 0.2;
+    ctx.font = `${Math.max(7, instrFont * 0.8)}px 'Press Start 2P', monospace`;
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillText('⭐일반 10점  ⭐⭐희귀 25점  ⭐⭐⭐전설 50점', W() / 2, ty);
+
+    // 시작 안내
     const pulse = Math.sin(time * 3) * 0.3 + 0.7;
-    ctx.font = `${Math.min(12, W() * 0.025)}px 'Press Start 2P', monospace`;
+    ctx.font = `${Math.min(11, W() * 0.022)}px 'Press Start 2P', monospace`;
     ctx.fillStyle = `rgba(255,255,255,${pulse})`;
-    ctx.fillText('터치 또는 ENTER', W() / 2, H() * 0.58);
+    ctx.fillText('터치 또는 ENTER로 시작', W() / 2, panelY + panelH + lineH * 1.2);
 
     drawParticles();
 }
@@ -831,10 +895,12 @@ function updateCrane() {
     if (gameState === STATE.DROPPING) {
         const { my, mh } = getMachineArea();
         const maxRope = mh * 0.65;
-        crane.ropeLength += 4;
+        crane.ropeLength += 3;
         crane.clawOpen = 1;
 
+        // 최대 깊이 도달 시 자동 잡기 (안전장치)
         if (crane.ropeLength >= maxRope) {
+            crane.ropeLength = maxRope;
             gameState = STATE.GRABBING;
         }
     }
@@ -1011,6 +1077,13 @@ document.addEventListener('keydown', (e) => {
             gameState = STATE.DROPPING;
         }
     }
+
+    // DROPPING 중 2번째 버튼 → 즉시 잡기
+    if (gameState === STATE.DROPPING) {
+        if (e.key === ' ' || e.key === 'Enter') {
+            gameState = STATE.GRABBING;
+        }
+    }
 });
 
 document.addEventListener('keyup', (e) => {
@@ -1103,6 +1176,9 @@ function handlePointerDown(e) {
             grabButton.touchId = touch.id;
             if (gameState === STATE.PLAYING) {
                 gameState = STATE.DROPPING;
+            } else if (gameState === STATE.DROPPING) {
+                // 2번째 누르기 → 즉시 잡기!
+                gameState = STATE.GRABBING;
             }
             continue;
         }
