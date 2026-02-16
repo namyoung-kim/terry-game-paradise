@@ -78,6 +78,14 @@ let transitionAlpha = 0;
 let transitioning = false;
 let transitionTarget = '';
 
+// 모바일 스크롤
+let scrollOffset = 0;
+let scrollVelocity = 0;
+let touchStartY = 0;
+let touchLastY = 0;
+let isTouchDragging = false;
+let touchMoved = false;
+
 // ===== Canvas =====
 function resizeCanvas() {
     canvas.width = window.innerWidth * window.devicePixelRatio;
@@ -213,6 +221,26 @@ function drawGameSelect() {
     const time = Date.now() * 0.001;
     const isPortrait = W() < H();
 
+    // 스크롤 관성 적용
+    if (!isTouchDragging && Math.abs(scrollVelocity) > 0.1) {
+        scrollOffset += scrollVelocity;
+        scrollVelocity *= 0.92;
+    } else if (!isTouchDragging) {
+        scrollVelocity = 0;
+    }
+
+    // 스크롤 범위 제한
+    if (isPortrait) {
+        const { cardH, gap } = getCardLayout();
+        const rows = GAMES.length; // maxCols=1 in portrait
+        const totalContentH = rows * (cardH + gap) - gap;
+        const visibleH = H() * 0.78; // 상단/하단 여백 제외
+        const maxScroll = Math.max(0, totalContentH - visibleH);
+        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
+    } else {
+        scrollOffset = 0;
+    }
+
     // 상단 타이틀
     const headerSize = Math.min(24, W() * 0.04);
     ctx.font = `${headerSize}px 'Press Start 2P', monospace`;
@@ -236,15 +264,18 @@ function drawGameSelect() {
     const totalW = Math.min(GAMES.length, maxCols) * (cardW + gap) - gap;
     const totalH = rows * (cardH + gap) - gap;
     const startX = (W() - totalW) / 2;
-    const startY = (H() - totalH) / 2;
+    const startY = isPortrait ? H() * 0.14 : (H() - totalH) / 2;
 
     for (let i = 0; i < GAMES.length; i++) {
         const game = GAMES[i];
         const col = i % maxCols;
         const row = Math.floor(i / maxCols);
         const cx = startX + col * (cardW + gap);
-        const cy = startY + row * (cardH + gap);
+        const cy = startY + row * (cardH + gap) - scrollOffset;
         const isSelected = i === selectedIndex;
+
+        // 화면 밖이면 스킵
+        if (cy + cardH < H() * 0.05 || cy > H() * 0.90) continue;
 
         // 선택 애니메이션
         const hoverOffset = isSelected ? Math.sin(time * 3) * 4 : 0;
@@ -320,13 +351,27 @@ function drawGameSelect() {
         ctx.restore();
     }
 
+    // 세로모드 스크롤 인디케이터
+    if (isPortrait) {
+        const totalContentH = GAMES.length * (cardH + gap) - gap;
+        const visibleH = H() * 0.78;
+        const maxScroll = Math.max(0, totalContentH - visibleH);
+        if (maxScroll > 0) {
+            const scrollBarH = Math.max(30, visibleH * (visibleH / totalContentH));
+            const scrollBarY = H() * 0.12 + (scrollOffset / maxScroll) * (visibleH - scrollBarH);
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            roundRect(ctx, W() - 8, scrollBarY, 4, scrollBarH, 2);
+            ctx.fill();
+        }
+    }
+
     // 하단 안내
     const instrSize = Math.min(11, W() * 0.014);
     ctx.font = `${instrSize}px 'Press Start 2P', monospace`;
     ctx.fillStyle = `rgba(255,255,255,${0.3 + Math.sin(time * 2) * 0.2})`;
     ctx.textAlign = 'center';
     if (isPortrait) {
-        ctx.fillText('↑↓ 선택    터치하여 실행', W() / 2, H() * 0.93);
+        ctx.fillText('스크롤하여 탐색    터치하여 실행', W() / 2, H() * 0.93);
     } else {
         ctx.fillText('← → 선택    ENTER 실행    ESC 뒤로', W() / 2, H() * 0.93);
     }
@@ -390,7 +435,7 @@ function getCardLayout() {
     const rows = Math.ceil(GAMES.length / maxCols);
     const totalH = rows * (cardH + gap) - gap;
     const startX = (W() - totalW) / 2;
-    const startY = (H() - totalH) / 2;
+    const startY = isPortrait ? H() * 0.14 : (H() - totalH) / 2;
     return { maxCols, cardW, cardH, gap, startX, startY, isPortrait };
 }
 
@@ -437,11 +482,13 @@ window.addEventListener('keydown', (e) => {
 });
 
 // ===== 마우스/터치 =====
+// 데스크톱 클릭
 canvas.addEventListener('click', (e) => {
     if (transitioning) return;
 
     if (hubState === 'TITLE') {
         hubState = 'SELECT';
+        scrollOffset = 0;
         spawnParticles(W() / 2, H() / 2, '#FFD700', 30);
         return;
     }
@@ -456,7 +503,7 @@ canvas.addEventListener('click', (e) => {
             const col = i % maxCols;
             const row = Math.floor(i / maxCols);
             const cx = startX + col * (cardW + gap);
-            const cy = startY + row * (cardH + gap);
+            const cy = startY + row * (cardH + gap) - scrollOffset;
 
             if (mx >= cx && mx <= cx + cardW && my >= cy && my <= cy + cardH) {
                 if (i === selectedIndex) {
@@ -473,6 +520,75 @@ canvas.addEventListener('click', (e) => {
         }
     }
 });
+
+// 모바일 터치 스크롤
+canvas.addEventListener('touchstart', (e) => {
+    if (transitioning) return;
+    if (hubState === 'TITLE') {
+        hubState = 'SELECT';
+        scrollOffset = 0;
+        spawnParticles(W() / 2, H() / 2, '#FFD700', 30);
+        e.preventDefault();
+        return;
+    }
+    if (hubState === 'SELECT') {
+        const touch = e.touches[0];
+        touchStartY = touch.clientY;
+        touchLastY = touch.clientY;
+        isTouchDragging = true;
+        touchMoved = false;
+        scrollVelocity = 0;
+        e.preventDefault();
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    if (!isTouchDragging || hubState !== 'SELECT') return;
+    const touch = e.touches[0];
+    const dy = touchLastY - touch.clientY;
+    scrollOffset += dy;
+    scrollVelocity = dy;
+    touchLastY = touch.clientY;
+    if (Math.abs(touch.clientY - touchStartY) > 8) {
+        touchMoved = true;
+    }
+    e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+    if (hubState !== 'SELECT') return;
+    isTouchDragging = false;
+
+    // 드래그하지 않고 탭한 경우에만 카드 선택
+    if (!touchMoved) {
+        const touch = e.changedTouches[0];
+        const rect = canvas.getBoundingClientRect();
+        const mx = touch.clientX - rect.left;
+        const my = touch.clientY - rect.top;
+        const { maxCols, cardW, cardH, gap, startX, startY } = getCardLayout();
+
+        for (let i = 0; i < GAMES.length; i++) {
+            const col = i % maxCols;
+            const row = Math.floor(i / maxCols);
+            const cx = startX + col * (cardW + gap);
+            const cy = startY + row * (cardH + gap) - scrollOffset;
+
+            if (mx >= cx && mx <= cx + cardW && my >= cy && my <= cy + cardH) {
+                if (i === selectedIndex) {
+                    transitioning = true;
+                    transitionAlpha = 0;
+                    transitionTarget = GAMES[i].path;
+                    spawnParticles(mx, my, '#fff', 40);
+                } else {
+                    selectedIndex = i;
+                    spawnParticles(mx, my, GAMES[i].accent, 8);
+                }
+                break;
+            }
+        }
+    }
+    e.preventDefault();
+}, { passive: false });
 
 // ===== 메인 루프 =====
 function gameLoop() {

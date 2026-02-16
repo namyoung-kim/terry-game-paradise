@@ -554,7 +554,6 @@ function drawHoles() {
             ctx.stroke();
         }
 
-        ctx.restore();
     }
 }
 
