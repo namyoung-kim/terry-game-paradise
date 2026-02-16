@@ -132,6 +132,10 @@ function updateAndDrawParticles() {
         p.y += p.vy;
         p.vy += 0.1; // gravity
         p.life -= p.decay;
+        if (p.life <= 0) {
+            particles.splice(i, 1);
+            continue;
+        }
         ctx.globalAlpha = Math.max(0, p.life);
         if (p.isEmoji) {
             ctx.font = `${p.size}px serif`;
@@ -141,10 +145,9 @@ function updateAndDrawParticles() {
         } else {
             ctx.fillStyle = p.color;
             ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+            ctx.arc(p.x, p.y, Math.max(0, p.size * p.life), 0, Math.PI * 2);
             ctx.fill();
         }
-        if (p.life <= 0) particles.splice(i, 1);
     }
     ctx.globalAlpha = 1;
 }
