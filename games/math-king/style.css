@@ -21,7 +21,7 @@ canvas {
 /* ===== 답 입력 박스 ===== */
 #answerBox {
     position: fixed;
-    bottom: 12%;
+    bottom: 2%;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -87,14 +87,18 @@ canvas {
 
 /* 모바일 대응 */
 @media (max-width: 480px) {
+    #answerBox {
+        bottom: 4px;
+    }
+
     #answerInput {
         width: 150px;
-        height: 46px;
+        height: 42px;
         font-size: 15px;
     }
 
     #submitBtn {
-        height: 46px;
+        height: 42px;
         padding: 0 14px;
         font-size: 11px;
     }

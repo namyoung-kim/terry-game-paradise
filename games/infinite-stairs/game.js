@@ -821,6 +821,9 @@ function showCharacterSelect() {
     startScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
     hud.classList.add('hidden');
+    // 캐릭터 선택 중 터치 컨트롤 숨기기 (터치 이벤트 충돌 방지)
+    const tc = document.getElementById('touchControls');
+    if (tc) tc.style.display = 'none';
 }
 
 function startGame() {
@@ -859,6 +862,9 @@ function startGame() {
     startScreen.classList.add('hidden');
     gameOverScreen.classList.add('hidden');
     hud.classList.remove('hidden');
+    // 게임 시작 시 터치 컨트롤 표시
+    const tc = document.getElementById('touchControls');
+    if (tc) tc.style.display = 'flex';
 
     resetStepTimer();
 }
@@ -1097,6 +1103,9 @@ function timeoutGameOver() {
 function showGameOverScreen() {
     hud.classList.add('hidden');
     gameOverScreen.classList.remove('hidden');
+    // 게임 오버 시 터치 컨트롤 숨기기
+    const tc = document.getElementById('touchControls');
+    if (tc) tc.style.display = 'none';
 
     finalScoreEl.textContent = score;
     // 최대 콤보 표시
@@ -1454,6 +1463,7 @@ const isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 function createTouchControls() {
     const container = document.createElement('div');
     container.id = 'touchControls';
+    container.style.display = 'none'; // 초기에는 숨김 (MENU 상태)
     container.innerHTML = `
         <button id="btnStraight" class="touch-btn touch-btn-left">⬆️<br><span class="touch-label">전진</span></button>
         <button id="btnTurn" class="touch-btn touch-btn-right">🔄<br><span class="touch-label">방향전환</span></button>

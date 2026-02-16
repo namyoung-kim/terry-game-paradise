@@ -233,6 +233,30 @@ function showAnswerBox() {
     setTimeout(() => answerInput.focus(), 100);
 }
 
+// ===== visualViewport 기반 키보드 대응 =====
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+        const vv = window.visualViewport;
+        // 키보드가 올라오면 입력창을 가시 영역 하단에 고정
+        const offsetY = window.innerHeight - vv.height - vv.offsetTop;
+        if (offsetY > 50) {
+            // 키보드가 올라온 상태
+            answerBox.style.bottom = (offsetY + 4) + 'px';
+        } else {
+            answerBox.style.bottom = '';
+        }
+    });
+    window.visualViewport.addEventListener('scroll', () => {
+        const vv = window.visualViewport;
+        const offsetY = window.innerHeight - vv.height - vv.offsetTop;
+        if (offsetY > 50) {
+            answerBox.style.bottom = (offsetY + 4) + 'px';
+        } else {
+            answerBox.style.bottom = '';
+        }
+    });
+}
+
 function hideAnswerBox() {
     answerBox.style.display = 'none';
     answerInput.blur();
@@ -403,7 +427,7 @@ function drawPlaying() {
     ctx.font = `bold ${catSize}px 'Press Start 2P', monospace`;
     const catTextW = ctx.measureText(catText).width + 20;
     const catBadgeX = (W() - catTextW) / 2;
-    const catBadgeY = H() * 0.16;
+    const catBadgeY = H() * 0.12;
     ctx.fillStyle = op.color + '33';
     roundRect(ctx, catBadgeX, catBadgeY, catTextW, catSize + 12, 8);
     ctx.fill();
@@ -415,11 +439,11 @@ function drawPlaying() {
     ctx.textAlign = 'center';
     ctx.fillText(catText, W() / 2, catBadgeY + catSize + 4);
 
-    // 문제 카드
+    // 문제 카드 (모바일에서 키보드를 고려해 위쪽에 배치)
     const cardW = Math.min(600, W() * 0.8);
-    const cardH = Math.min(140, H() * 0.18);
+    const cardH = Math.min(110, H() * 0.14);
     const cardX = (W() - cardW) / 2;
-    const cardY = H() * 0.24;
+    const cardY = H() * 0.18;
 
     ctx.save();
     if (shakeAmount > 0) {
@@ -441,7 +465,7 @@ function drawPlaying() {
     ctx.stroke();
 
     // 문제 텍스트
-    const qFontSize = Math.min(32, W() * 0.05, cardW * 0.06);
+    const qFontSize = Math.min(28, W() * 0.045, cardW * 0.055);
     ctx.font = `bold ${qFontSize}px 'Press Start 2P', monospace`;
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'center';
@@ -453,17 +477,11 @@ function drawPlaying() {
     const bonusElapsed = Date.now() - timerStart;
     if (bonusElapsed <= FAST_BONUS_TIME) {
         const bonusAlpha = 0.4 + Math.sin(t * 4) * 0.3;
-        ctx.font = `${Math.min(11, W() * 0.013)}px 'Press Start 2P', monospace`;
+        ctx.font = `${Math.min(10, W() * 0.012)}px 'Press Start 2P', monospace`;
         ctx.fillStyle = `rgba(0, 255, 127, ${bonusAlpha})`;
         ctx.textAlign = 'center';
-        ctx.fillText('⚡ 보너스 타임! ⚡', W() / 2, cardY + cardH + 30);
+        ctx.fillText('⚡ 보너스 타임! ⚡', W() / 2, cardY + cardH + 22);
     }
-
-    // 안내
-    ctx.font = `${Math.min(9, W() * 0.011)}px 'Press Start 2P', monospace`;
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.textAlign = 'center';
-    ctx.fillText('숫자를 입력하고 ENTER 또는 제출', W() / 2, H() * 0.95);
 
     drawParticles();
 }
