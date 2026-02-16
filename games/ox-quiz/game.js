@@ -175,6 +175,7 @@ function nextQuestion() {
             bestScore = score;
             localStorage.setItem('oxQuizBest', bestScore);
         }
+        showGameOverOverlay();
     } else {
         state = 'PLAYING';
         timerStart = Date.now();
@@ -529,72 +530,79 @@ function drawShowResult() {
 
 function drawGameOver() {
     drawBackground();
-    const t = Date.now() * 0.001;
+    // HTML 오버레이가 결과를 표시하므로 캔버스에는 배경만 그림
+}
 
-    // 타이틀
-    const titleSize = Math.min(32, W() * 0.04);
-    ctx.save();
-    ctx.shadowColor = '#FFD700';
-    ctx.shadowBlur = 20;
-    ctx.font = `bold ${titleSize}px 'Press Start 2P', monospace`;
-    ctx.fillStyle = '#FFD700';
-    ctx.textAlign = 'center';
-    ctx.fillText('🏆 결과 🏆', W() / 2, H() * 0.08);
-    ctx.restore();
+// ===== 게임오버 HTML 오버레이 (전체 문제 스크롤 가능) =====
+function createGameOverOverlay() {
+    const overlay = document.createElement('div');
+    overlay.id = 'gameOverOverlay';
+    document.body.appendChild(overlay);
+    return overlay;
+}
 
-    // 점수
-    const scoreSize = Math.min(48, W() * 0.06);
-    ctx.font = `bold ${scoreSize}px 'Press Start 2P', monospace`;
-    ctx.fillStyle = '#fff';
-    ctx.fillText(`${score}점`, W() / 2, H() * 0.18);
+const gameOverOverlay = createGameOverOverlay();
 
-    // 통계
+function showGameOverOverlay() {
     const correct = answers.filter(a => a.correct).length;
     const totalAnswered = answers.length;
-    const statSize = Math.min(13, W() * 0.016);
-    ctx.font = `${statSize}px 'Press Start 2P', monospace`;
-    ctx.fillStyle = '#00FF7F';
-    ctx.fillText(`정답 ${correct}/${totalAnswered}  |  최고콤보 ${maxCombo}`, W() / 2, H() * 0.24);
-    ctx.fillStyle = '#FFD700';
-    ctx.fillText(`BEST: ${bestScore}점`, W() / 2, H() * 0.29);
 
-    // 각 문제 결과 스크롤 (작은 카드들)
-    const listStart = H() * 0.34;
-    const itemH = Math.min(40, H() * 0.045);
-    const listW = Math.min(700, W() * 0.85);
-    const listX = (W() - listW) / 2;
+    let html = `
+        <div class="result-header">
+            <div class="result-title">🏆 결과 🏆</div>
+            <div class="result-score">${score}점</div>
+            <div class="result-stats">정답 ${correct}/${totalAnswered}  |  최고콤보 ${maxCombo}</div>
+            <div class="result-best">BEST: ${bestScore}점</div>
+        </div>
+        <div class="result-list">
+    `;
 
     for (let i = 0; i < answers.length; i++) {
         const a = answers[i];
-        const iy = listStart + i * (itemH + 4);
-        if (iy > H() * 0.85) break;
-
-        ctx.fillStyle = a.correct ? 'rgba(0,255,127,0.08)' : 'rgba(255,71,87,0.08)';
-        roundRect(ctx, listX, iy, listW, itemH, 6);
-        ctx.fill();
-
-        // 번호 + 카테고리
-        const itemFontSize = Math.min(10, itemH * 0.28);
-        ctx.font = `bold ${itemFontSize}px 'Press Start 2P', monospace`;
-        ctx.fillStyle = a.correct ? '#00FF7F' : '#FF4757';
-        ctx.textAlign = 'left';
         const catS = getCategoryStyle(a.question.category);
-        ctx.fillText(`${a.correct ? '⭕' : '❌'} Q${i + 1}`, listX + 10, iy + itemH * 0.65);
-        ctx.fillStyle = catS.color;
-        ctx.fillText(`[${a.question.category}]`, listX + 85, iy + itemH * 0.65);
-
-        // 내용 (축약)
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        const qText = a.question.q.length > 25 ? a.question.q.substring(0, 25) + '...' : a.question.q;
-        ctx.fillText(qText, listX + 80, iy + itemH * 0.65);
+        const isCorrect = a.correct;
+        html += `
+            <div class="result-item ${isCorrect ? 'correct' : 'wrong'}">
+                <div class="q-num ${isCorrect ? 'correct' : 'wrong'}">
+                    ${isCorrect ? '⭕' : '❌'} Q${i + 1}
+                </div>
+                <div class="q-body">
+                    <div class="q-category" style="color:${catS.color}">${catS.emoji} ${a.question.category}</div>
+                    <div class="q-text">${a.question.q}</div>
+                    <div class="q-answer">정답: ${a.question.a ? 'O ⭕' : 'X ❌'}${!isCorrect ? ' | 내 답: ' + (a.userAnswer === null ? '시간초과 ⏰' : a.userAnswer ? 'O' : 'X') : ''}</div>
+                </div>
+            </div>
+        `;
     }
 
-    // 안내
-    const pulse = Math.sin(t * 3) * 0.3 + 0.7;
-    ctx.font = `${Math.min(11, W() * 0.013)}px 'Press Start 2P', monospace`;
-    ctx.fillStyle = `rgba(255,255,255,${pulse})`;
-    ctx.textAlign = 'center';
-    ctx.fillText('ENTER: 다시 도전  |  ESC: 게임 목록', W() / 2, H() * 0.94);
+    html += `
+        </div>
+        <div class="result-footer">
+            <div class="action-btns">
+                <button class="action-btn primary" id="retryBtn">🔄 다시 도전</button>
+                <button class="action-btn" id="goHomeBtn">🏠 게임 목록</button>
+            </div>
+        </div>
+    `;
+
+    gameOverOverlay.innerHTML = html;
+    gameOverOverlay.style.display = 'block';
+    gameOverOverlay.scrollTop = 0;
+
+    // 버튼 이벤트
+    document.getElementById('retryBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        hideGameOverOverlay();
+        state = 'READY';
+    });
+    document.getElementById('goHomeBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = '../../index.html';
+    });
+}
+
+function hideGameOverOverlay() {
+    gameOverOverlay.style.display = 'none';
 }
 
 function drawParticles() {
@@ -678,7 +686,7 @@ document.addEventListener('keydown', (e) => {
     }
 
     if (state === 'GAME_OVER') {
-        if (e.key === 'Enter') { e.preventDefault(); state = 'READY'; }
+        if (e.key === 'Enter') { e.preventDefault(); hideGameOverOverlay(); state = 'READY'; }
         return;
     }
 });
@@ -691,7 +699,7 @@ window.addEventListener('keydown', (e) => {
 canvas.addEventListener('click', (e) => {
     if (state === 'READY') { startGame(); return; }
     if (state === 'SHOW_RESULT') { nextQuestion(); return; }
-    if (state === 'GAME_OVER') { state = 'READY'; return; }
+    if (state === 'GAME_OVER') { hideGameOverOverlay(); state = 'READY'; return; }
 
     if (state === 'PLAYING') {
         const rect = canvas.getBoundingClientRect();
