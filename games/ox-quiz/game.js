@@ -258,7 +258,7 @@ function drawPlaying() {
     // 상단: 목숨(하트) 표시
     const barY = 15;
     const livesLeft = MAX_WRONG - wrongCount;
-    const heartSize = Math.min(16, W() * 0.02);
+    const heartSize = Math.min(18, Math.max(14, W() * 0.035));
     ctx.font = `${heartSize}px 'Press Start 2P', monospace`;
     ctx.textAlign = 'left';
     for (let i = 0; i < MAX_WRONG; i++) {
@@ -268,7 +268,7 @@ function drawPlaying() {
     }
 
     // 문제 번호
-    const numSize = Math.min(14, W() * 0.018);
+    const numSize = Math.min(16, Math.max(12, W() * 0.032));
     ctx.font = `bold ${numSize}px 'Press Start 2P', monospace`;
     ctx.fillStyle = '#FFD700';
     ctx.textAlign = 'center';
@@ -277,7 +277,7 @@ function drawPlaying() {
     // 점수 & 콤보
     ctx.textAlign = 'right';
     ctx.fillStyle = '#fff';
-    ctx.font = `${Math.min(11, W() * 0.014)}px 'Press Start 2P', monospace`;
+    ctx.font = `${Math.min(13, Math.max(10, W() * 0.026))}px 'Press Start 2P', monospace`;
     ctx.fillText(`SCORE: ${score}`, W() - 15, barY + numSize);
     if (combo > 1) {
         ctx.fillStyle = '#FFD700';
@@ -310,26 +310,26 @@ function drawPlaying() {
 
     // 카테고리 배지
     const catStyle = getCategoryStyle(q.category);
-    const catSize = Math.min(12, W() * 0.015);
+    const catSize = Math.min(14, Math.max(11, W() * 0.028));
     const catText = `${catStyle.emoji} ${q.category}`;
     ctx.font = `bold ${catSize}px 'Press Start 2P', monospace`;
-    const catTextW = ctx.measureText(catText).width + 20;
+    const catTextW = ctx.measureText(catText).width + 24;
     const catBadgeX = (W() - catTextW) / 2;
     const catBadgeY = H() * 0.19;
     ctx.fillStyle = catStyle.color + '33';
-    roundRect(ctx, catBadgeX, catBadgeY, catTextW, catSize + 12, 8);
+    roundRect(ctx, catBadgeX, catBadgeY, catTextW, catSize + 14, 8);
     ctx.fill();
     ctx.strokeStyle = catStyle.color + '88';
     ctx.lineWidth = 1;
-    roundRect(ctx, catBadgeX, catBadgeY, catTextW, catSize + 12, 8);
+    roundRect(ctx, catBadgeX, catBadgeY, catTextW, catSize + 14, 8);
     ctx.stroke();
     ctx.fillStyle = catStyle.color;
     ctx.textAlign = 'center';
-    ctx.fillText(catText, W() / 2, catBadgeY + catSize + 4);
+    ctx.fillText(catText, W() / 2, catBadgeY + catSize + 5);
 
     // 문제 카드
-    const cardW = Math.min(700, W() * 0.85);
-    const cardH = Math.min(180, H() * 0.22);
+    const cardW = Math.min(700, W() * 0.9);
+    const cardH = Math.min(220, H() * 0.26);
     const cardX = (W() - cardW) / 2;
     const cardY = H() * 0.25;
 
@@ -351,8 +351,8 @@ function drawPlaying() {
     roundRect(ctx, cardX, cardY, cardW, cardH, 16);
     ctx.stroke();
 
-    // 문제 텍스트 (줄바꿈)
-    const qFontSize = Math.min(15, W() * 0.018, cardW * 0.025);
+    // 문제 텍스트 (줄바꿈) — 모바일에서 잘 보이도록 폰트 크기 확대
+    const qFontSize = Math.min(18, Math.max(13, W() * 0.034));
     const lines = wrapText(q.q, cardW - 40, qFontSize);
     ctx.font = `bold ${qFontSize}px 'Press Start 2P', monospace`;
     ctx.fillStyle = '#fff';
@@ -365,9 +365,9 @@ function drawPlaying() {
     ctx.restore();
 
     // O / X 버튼
-    const btnSize = Math.min(120, W() * 0.15, H() * 0.15);
-    const btnY = H() * 0.58;
-    const btnGap = Math.min(100, W() * 0.12);
+    const btnSize = Math.min(130, Math.max(80, W() * 0.2), H() * 0.15);
+    const btnY = H() * 0.6;
+    const btnGap = Math.min(110, W() * 0.14);
 
     // O 버튼
     const oX = W() / 2 - btnGap - btnSize / 2;
@@ -380,7 +380,7 @@ function drawPlaying() {
     drawOXButton(xX, btnY, btnSize * xHover, 'X', '#FF4757', '#8B0000', selectedSide === 'X');
 
     // 안내
-    ctx.font = `${Math.min(10, W() * 0.012)}px 'Press Start 2P', monospace`;
+    ctx.font = `${Math.min(11, Math.max(9, W() * 0.022))}px 'Press Start 2P', monospace`;
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
     ctx.textAlign = 'center';
     ctx.fillText('← O키 = ⭕    → X키 = ❌', W() / 2, H() * 0.88);
@@ -464,7 +464,7 @@ function drawShowResult() {
     roundRect(ctx, qCardX, qCardY, qCardW, qCardH, 10);
     ctx.fill();
 
-    const qSize = Math.min(11, W() * 0.014);
+    const qSize = Math.min(13, Math.max(10, W() * 0.026));
     const qLines = wrapText(q.q, qCardW - 30, qSize);
     ctx.font = `bold ${qSize}px 'Press Start 2P', monospace`;
     ctx.fillStyle = 'rgba(255,255,255,0.7)';
@@ -493,14 +493,14 @@ function drawShowResult() {
     ctx.stroke();
 
     // "풀이" 레이블
-    const labelSize = Math.min(13, W() * 0.016);
+    const labelSize = Math.min(14, Math.max(11, W() * 0.028));
     ctx.font = `bold ${labelSize}px 'Press Start 2P', monospace`;
     ctx.fillStyle = '#FFD700';
     ctx.textAlign = 'left';
     ctx.fillText('📝 풀이', expCardX + 18, expCardY + 28);
 
     // 풀이 텍스트
-    const expSize = Math.min(12, W() * 0.015);
+    const expSize = Math.min(14, Math.max(11, W() * 0.028));
     const expLines = wrapText(q.exp, expCardW - 50, expSize);
     ctx.font = `bold ${expSize}px 'Press Start 2P', monospace`;
     ctx.fillStyle = '#fff';
