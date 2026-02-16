@@ -53,6 +53,16 @@ const GAMES = [
         color1: '#FF69B4',
         color2: '#8B0045',
         accent: '#FFD700'
+    },
+    {
+        id: 'whack-a-mole',
+        name: '두더지 잡기',
+        emoji: '🔨',
+        description: '두더지를 잡아라!',
+        path: 'games/whack-a-mole/index.html',
+        color1: '#FF8C00',
+        color2: '#8B4513',
+        accent: '#FFD700'
     }
 ];
 
