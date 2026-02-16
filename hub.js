@@ -33,6 +33,16 @@ const GAMES = [
         color1: '#A78BFA',
         color2: '#4C1D95',
         accent: '#FCD34D'
+    },
+    {
+        id: 'memory-card',
+        name: '카드 뒤집기',
+        emoji: '🃏',
+        description: '같은 그림을 찾아라!',
+        path: 'games/memory-card/index.html',
+        color1: '#E879F9',
+        color2: '#701A75',
+        accent: '#FDE047'
     }
 ];
 
