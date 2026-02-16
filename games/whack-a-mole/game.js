@@ -293,6 +293,19 @@ function whackMole(holeIndex) {
 }
 
 // ===== 게임 시작 =====
+let allTimerIds = []; // 모든 타이머 ID 추적
+
+function clearAllGameTimers() {
+    if (gameTimer) {
+        clearInterval(gameTimer);
+        gameTimer = null;
+    }
+    for (const id of allTimerIds) {
+        clearInterval(id);
+    }
+    allTimerIds = [];
+}
+
 function startStage() {
     const config = getStageConfig();
     timeLeft = 30;
@@ -313,8 +326,10 @@ function startStage() {
         maxCombo = 0;
     }
 
+    // 기존 타이머 모두 정리
+    clearAllGameTimers();
+
     // 타이머 시작
-    if (gameTimer) clearInterval(gameTimer);
     gameTimer = setInterval(() => {
         if (gameState !== STATE.PLAYING) return;
         timeLeft--;
@@ -323,10 +338,11 @@ function startStage() {
             checkStageEnd();
         }
     }, 1000);
+    allTimerIds.push(gameTimer);
 }
 
 function checkStageEnd() {
-    if (gameTimer) clearInterval(gameTimer);
+    clearAllGameTimers();
     const config = getStageConfig();
 
     if (score >= config.targetScore) {
@@ -915,12 +931,18 @@ function handleClick(clientX, clientY) {
     }
 }
 
+// touch/click 이중 발화 방지
+let lastTouchTime = 0;
+
 canvas.addEventListener('click', (e) => {
+    // 최근 touchstart가 있었으면 click 무시 (이중 발화 방지)
+    if (Date.now() - lastTouchTime < 500) return;
     handleClick(e.clientX, e.clientY);
 });
 
 canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
+    lastTouchTime = Date.now();
     const touch = e.touches[0];
     handleClick(touch.clientX, touch.clientY);
 }, { passive: false });
@@ -949,8 +971,8 @@ function gameLoop() {
         // 두더지 업데이트
         updateMoles(dt);
 
-        // 자동 스테이지 클리어 체크
-        if (score >= config.targetScore && timeLeft > 0) {
+        // 자동 스테이지 클리어 체크 (게임 중인 경우에만)
+        if (gameState === STATE.PLAYING && score >= config.targetScore && timeLeft > 0) {
             checkStageEnd();
         }
 
