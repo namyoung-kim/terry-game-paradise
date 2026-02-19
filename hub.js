@@ -157,14 +157,9 @@ function updateSelectedCard() {
 function handleCardClick(index) {
     if (transitioning) return;
 
-    if (index === selectedIndex) {
-        // 이미 선택된 카드 클릭 → 게임 진입
-        launchGame(index);
-    } else {
-        // 다른 카드 클릭 → 선택
-        selectedIndex = index;
-        updateSelectedCard();
-    }
+    selectedIndex = index;
+    updateSelectedCard();
+    launchGame(index);
 }
 
 // ===== 게임 실행 =====
