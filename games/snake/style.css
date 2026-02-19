@@ -13,7 +13,7 @@ canvas {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     user-select: none;
     -webkit-user-select: none;
     pointer-events: auto;
@@ -28,19 +28,19 @@ canvas {
 .dpad-row {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
 }
 
 .dpad-btn {
-    width: 60px;
-    height: 60px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.08);
+    width: 80px;
+    height: 80px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.10);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    color: rgba(240, 240, 245, 0.85);
-    font-size: 22px;
+    color: rgba(240, 240, 245, 0.9);
+    font-size: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -58,8 +58,8 @@ canvas {
 }
 
 .dpad-center {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
 }
 
 /* Landscape phones: move dpad to bottom-right */
@@ -72,14 +72,14 @@ canvas {
     }
 
     .dpad-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 18px;
+        width: 64px;
+        height: 64px;
+        font-size: 22px;
     }
 
     .dpad-center {
-        width: 50px;
-        height: 50px;
+        width: 64px;
+        height: 64px;
     }
 }
 
