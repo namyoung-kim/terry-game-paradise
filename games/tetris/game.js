@@ -278,9 +278,12 @@
     }
 
     function finishClear() {
-        // Remove lines
-        for (const row of clearingLines.sort((a, b) => b - a)) {
+        // Remove lines — splice all first, then unshift empty rows
+        const sorted = clearingLines.sort((a, b) => b - a);
+        for (const row of sorted) {
             board.splice(row, 1);
+        }
+        for (let i = 0; i < sorted.length; i++) {
             board.unshift(Array(COLS).fill(null));
         }
         clearingLines = [];
@@ -672,12 +675,13 @@
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            if (e.key === ' ' && state === 'PLAY') { hardDrop(); return; }
+            if (e.key === ' ' && state === 'PLAY' && clearingLines.length === 0) { hardDrop(); return; }
             if (state === 'START') { initGame(); state = 'PLAY'; showTouchControls(true); return; }
             if (state === 'OVER') { initGame(); state = 'PLAY'; showTouchControls(true); return; }
         }
 
         if (state !== 'PLAY') return;
+        if (clearingLines.length > 0) return; // block input during clear animation
 
         switch (e.key) {
             case 'ArrowLeft':
@@ -726,6 +730,7 @@
 
         function doAction() {
             if (state !== 'PLAY') return;
+            if (clearingLines.length > 0) return; // block input during clear animation
             switch (action) {
                 case 'left': moveLeft(); break;
                 case 'right': moveRight(); break;
