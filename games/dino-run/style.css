@@ -1,0 +1,4 @@
+/* Dino Run — minimal overrides */
+canvas {
+    image-rendering: pixelated;
+}

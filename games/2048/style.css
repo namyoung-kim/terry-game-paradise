@@ -1,0 +1,297 @@
+/* 2048 — DOM-based game styles */
+
+/* Override theme canvas fullscreen — we use DOM layout */
+canvas {
+    display: none;
+}
+
+html,
+body {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Background Orbs */
+.bg-orbs {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+}
+
+.orb-1 {
+    width: 360px;
+    height: 360px;
+    top: 10%;
+    left: 15%;
+    background: rgba(167, 139, 250, 0.1);
+    animation: orbFloat1 14s ease-in-out infinite alternate;
+}
+
+.orb-2 {
+    width: 420px;
+    height: 420px;
+    bottom: 10%;
+    right: 10%;
+    background: rgba(244, 114, 182, 0.08);
+    animation: orbFloat2 18s ease-in-out infinite alternate;
+}
+
+.orb-3 {
+    width: 300px;
+    height: 300px;
+    top: 5%;
+    right: 25%;
+    background: rgba(96, 165, 250, 0.07);
+    animation: orbFloat3 12s ease-in-out infinite alternate;
+}
+
+@keyframes orbFloat1 {
+    to {
+        transform: translate(40px, 30px) scale(1.1);
+    }
+}
+
+@keyframes orbFloat2 {
+    to {
+        transform: translate(-30px, -40px) scale(0.9);
+    }
+}
+
+@keyframes orbFloat3 {
+    to {
+        transform: translate(20px, 50px) scale(1.15);
+    }
+}
+
+/* Header */
+.game-header {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: min(92vw, 420px);
+    margin-bottom: 12px;
+    padding: 0 4px;
+}
+
+.game-title {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 5vw, 36px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.score-area {
+    display: flex;
+    gap: 8px;
+}
+
+.score-box {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 4px 12px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    min-width: 72px;
+}
+
+.score-box.best {
+    border-color: rgba(167, 139, 250, 0.3);
+}
+
+.score-label {
+    display: block;
+    font-family: var(--font-game);
+    font-size: 8px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+}
+
+.score-value {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(14px, 3vw, 20px);
+    color: var(--text-primary);
+}
+
+/* Board */
+.board-container {
+    position: relative;
+    z-index: 2;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 6px;
+    padding: 8px;
+    width: min(92vw, 420px);
+    height: min(92vw, 420px);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Cells */
+.cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(16px, 4vw, 28px);
+    color: var(--text-primary);
+    transition: transform 0.12s ease, background 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Tile colors */
+.cell[data-value="2"] {
+    background: rgba(167, 139, 250, 0.15);
+    color: var(--accent-purple);
+}
+
+.cell[data-value="4"] {
+    background: rgba(167, 139, 250, 0.25);
+    color: var(--accent-purple);
+}
+
+.cell[data-value="8"] {
+    background: rgba(244, 114, 182, 0.25);
+    color: var(--accent-pink);
+}
+
+.cell[data-value="16"] {
+    background: rgba(244, 114, 182, 0.35);
+    color: var(--accent-pink);
+}
+
+.cell[data-value="32"] {
+    background: rgba(96, 165, 250, 0.3);
+    color: var(--accent-blue);
+}
+
+.cell[data-value="64"] {
+    background: rgba(96, 165, 250, 0.45);
+    color: var(--accent-blue);
+}
+
+.cell[data-value="128"] {
+    background: rgba(52, 211, 153, 0.3);
+    color: var(--accent-emerald);
+}
+
+.cell[data-value="256"] {
+    background: rgba(52, 211, 153, 0.45);
+    color: var(--accent-emerald);
+}
+
+.cell[data-value="512"] {
+    background: rgba(251, 191, 36, 0.35);
+    color: var(--accent-amber);
+}
+
+.cell[data-value="1024"] {
+    background: rgba(251, 191, 36, 0.5);
+    color: var(--accent-amber);
+    font-size: clamp(13px, 3.2vw, 22px);
+}
+
+.cell[data-value="2048"] {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.5), rgba(244, 114, 182, 0.5));
+    color: #fff;
+    font-size: clamp(13px, 3.2vw, 22px);
+    box-shadow: 0 0 24px rgba(167, 139, 250, 0.4);
+}
+
+.cell.high-value {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.5), rgba(249, 115, 22, 0.5));
+    color: #fff;
+    font-size: clamp(11px, 2.8vw, 18px);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+}
+
+.cell.pop {
+    animation: cellPop 0.18s ease;
+}
+
+@keyframes cellPop {
+    0% {
+        transform: scale(0);
+    }
+
+    60% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.cell.merge {
+    animation: cellMerge 0.2s ease;
+}
+
+@keyframes cellMerge {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.25);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Overlay */
+.overlay-title {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 5vw, 36px);
+    font-weight: 900;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.overlay-score {
+    font-family: var(--font-game);
+    font-size: clamp(12px, 2.5vw, 16px);
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.overlay-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}

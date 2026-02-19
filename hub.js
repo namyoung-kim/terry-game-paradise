@@ -43,6 +43,27 @@ const GAMES = [
         emoji: '🔨',
         description: '두더지를 잡아라!',
         path: 'games/whack-a-mole/index.html'
+    },
+    {
+        id: 'snake',
+        name: '뱀 게임',
+        emoji: '🐍',
+        description: '먹이를 먹으며 성장하자!',
+        path: 'games/snake/index.html'
+    },
+    {
+        id: '2048',
+        name: '2048',
+        emoji: '🧩',
+        description: '타일을 합쳐 2048을 만들어라!',
+        path: 'games/2048/index.html'
+    },
+    {
+        id: 'dino-run',
+        name: '공룡 점프',
+        emoji: '🦖',
+        description: '장애물을 피해 달려라!',
+        path: 'games/dino-run/index.html'
     }
 ];
 

@@ -1,0 +1,4 @@
+/* Snake — minimal overrides (theme.css handles common styles) */
+canvas {
+    image-rendering: pixelated;
+}
