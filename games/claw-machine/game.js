@@ -35,7 +35,7 @@ let attemptsLeft = 5;
 let grabbedDoll = null;
 let dolls = [];
 let particles = [];
-let stars = [];
+let orbs = [];
 let shakeTimer = 0;
 let shakeIntensity = 0;
 let resultDolls = []; // 뽑은 인형들
@@ -99,22 +99,15 @@ const grabButton = {
     enabled: true
 };
 
-// ===== 별 배경 =====
-function initStars() {
-    stars = [];
-    for (let i = 0; i < 120; i++) {
-        stars.push({
-            x: Math.random() * W(),
-            y: Math.random() * H(),
-            size: Math.random() * 2 + 0.3,
-            speed: Math.random() * 0.2 + 0.05,
-            brightness: Math.random() * 0.5 + 0.3,
-            twinkleSpeed: Math.random() * 0.03 + 0.01,
-            twinkleOffset: Math.random() * Math.PI * 2
-        });
-    }
+// ===== 오브 배경 =====
+function initOrbs() {
+    orbs = [
+        { x: 0.85, y: 0.1, radius: 0.35, color: '124, 58, 237', speed: 0.0003, phaseX: 0, phaseY: 0 },
+        { x: 0.1, y: 0.85, radius: 0.30, color: '236, 72, 153', speed: 0.00025, phaseX: 2, phaseY: 1 },
+        { x: 0.5, y: 0.45, radius: 0.25, color: '59, 130, 246', speed: 0.0002, phaseX: 4, phaseY: 3 }
+    ];
 }
-initStars();
+initOrbs();
 
 // ===== 머신 영역 계산 =====
 function getMachineArea() {
@@ -215,24 +208,24 @@ function spawnEmoji(x, y, emoji, count) {
 // ===== 배경 그리기 =====
 function drawBackground() {
     const gradient = ctx.createLinearGradient(0, 0, 0, H());
-    gradient.addColorStop(0, '#050510');
-    gradient.addColorStop(0.5, '#0a0a2e');
-    gradient.addColorStop(1, '#12123d');
+    gradient.addColorStop(0, '#0c0c1d');
+    gradient.addColorStop(0.5, '#12122b');
+    gradient.addColorStop(1, '#1a1a35');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, W(), H());
 
-    const time = Date.now() * 0.001;
-    for (const star of stars) {
-        star.y += star.speed;
-        if (star.y > H()) { star.y = 0; star.x = Math.random() * W(); }
-        const twinkle = Math.sin(time * star.twinkleSpeed * 60 + star.twinkleOffset) * 0.3 + 0.7;
-        ctx.globalAlpha = star.brightness * twinkle;
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fill();
+    const t = Date.now();
+    for (const orb of orbs) {
+        const ox = (orb.x + Math.sin(t * orb.speed + orb.phaseX) * 0.03) * W();
+        const oy = (orb.y + Math.cos(t * orb.speed * 0.8 + orb.phaseY) * 0.03) * H();
+        const r = orb.radius * Math.min(W(), H());
+        const rg = ctx.createRadialGradient(ox, oy, 0, ox, oy, r);
+        rg.addColorStop(0, `rgba(${orb.color}, 0.12)`);
+        rg.addColorStop(0.6, `rgba(${orb.color}, 0.05)`);
+        rg.addColorStop(1, `rgba(${orb.color}, 0)`);
+        ctx.fillStyle = rg;
+        ctx.fillRect(ox - r, oy - r, r * 2, r * 2);
     }
-    ctx.globalAlpha = 1;
 }
 
 // ===== 라운드 사각형 =====

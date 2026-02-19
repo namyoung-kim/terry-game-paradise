@@ -1,22 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html,
-body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #0a0a1e;
-}
-
-canvas {
-    display: block;
-    width: 100vw;
-    height: 100vh;
-}
+/* ox-quiz — game-specific overrides */
 
 /* ===== 게임오버 결과 오버레이 ===== */
 #gameOverOverlay {
@@ -24,13 +6,13 @@ canvas {
     position: fixed;
     inset: 0;
     z-index: 15;
-    background: rgba(5, 5, 20, 0.95);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(12, 12, 29, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    font-family: 'Press Start 2P', monospace;
-    color: #fff;
+    font-family: var(--font-game);
+    color: var(--text-primary);
     padding: 20px 16px 40px;
 }
 
@@ -41,8 +23,8 @@ canvas {
 
 #gameOverOverlay .result-title {
     font-size: clamp(18px, 5vw, 30px);
-    color: #FFD700;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    color: var(--accent-amber);
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
     margin-bottom: 12px;
 }
 
@@ -53,13 +35,13 @@ canvas {
 
 #gameOverOverlay .result-stats {
     font-size: clamp(10px, 2.5vw, 13px);
-    color: #00FF7F;
+    color: var(--accent-emerald);
     margin-bottom: 4px;
 }
 
 #gameOverOverlay .result-best {
     font-size: clamp(10px, 2.5vw, 13px);
-    color: #FFD700;
+    color: var(--accent-amber);
     margin-bottom: 16px;
 }
 
@@ -74,19 +56,19 @@ canvas {
     gap: 10px;
     padding: 10px 12px;
     margin-bottom: 6px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: clamp(10px, 2.8vw, 13px);
     line-height: 1.6;
 }
 
 #gameOverOverlay .result-item.correct {
-    background: rgba(0, 255, 127, 0.08);
-    border-left: 3px solid #00FF7F;
+    background: rgba(52, 211, 153, 0.06);
+    border-left: 3px solid var(--accent-emerald);
 }
 
 #gameOverOverlay .result-item.wrong {
-    background: rgba(255, 71, 87, 0.08);
-    border-left: 3px solid #FF4757;
+    background: rgba(251, 146, 60, 0.06);
+    border-left: 3px solid var(--accent-orange);
 }
 
 #gameOverOverlay .result-item .q-num {
@@ -96,11 +78,11 @@ canvas {
 }
 
 #gameOverOverlay .result-item .q-num.correct {
-    color: #00FF7F;
+    color: var(--accent-emerald);
 }
 
 #gameOverOverlay .result-item .q-num.wrong {
-    color: #FF4757;
+    color: var(--accent-orange);
 }
 
 #gameOverOverlay .result-item .q-body {
@@ -114,13 +96,13 @@ canvas {
 }
 
 #gameOverOverlay .result-item .q-text {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(240, 240, 245, 0.85);
     word-break: keep-all;
 }
 
 #gameOverOverlay .result-item .q-answer {
     font-size: clamp(8px, 2vw, 10px);
-    color: #FFD700;
+    color: var(--accent-amber);
     margin-top: 4px;
 }
 
@@ -128,7 +110,7 @@ canvas {
     text-align: center;
     margin-top: 24px;
     font-size: clamp(10px, 2.5vw, 12px);
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
 }
 
 #gameOverOverlay .result-footer .action-btns {
@@ -140,23 +122,25 @@ canvas {
 
 #gameOverOverlay .result-footer .action-btn {
     padding: 12px 24px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-    font-family: 'Press Start 2P', monospace;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-primary);
+    font-family: var(--font-game);
     font-size: clamp(9px, 2.2vw, 11px);
     cursor: pointer;
     touch-action: manipulation;
-    transition: background 0.2s, transform 0.1s;
+    transition: background var(--transition-fast), transform 0.1s;
 }
 
 #gameOverOverlay .result-footer .action-btn:active {
     transform: scale(0.95);
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 #gameOverOverlay .result-footer .action-btn.primary {
-    border-color: #FFD700;
-    color: #FFD700;
+    border-color: rgba(251, 191, 36, 0.4);
+    color: var(--accent-amber);
 }

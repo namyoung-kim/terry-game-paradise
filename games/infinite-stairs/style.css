@@ -1,24 +1,9 @@
-/* ===== Reset & Base ===== */
-*,
-*::before,
-*::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* ===== infinite-stairs — game-specific overrides ===== */
 
 body {
-    overflow: hidden;
-    background: #0a0a1a;
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-game);
     user-select: none;
     -webkit-user-select: none;
-}
-
-canvas {
-    display: block;
-    width: 100vw;
-    height: 100vh;
 }
 
 /* ===== Overlay (Start / Game Over) ===== */
@@ -29,9 +14,9 @@ canvas {
     align-items: center;
     justify-content: center;
     z-index: 10;
-    background: rgba(5, 5, 20, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(12, 12, 29, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     transition: opacity 0.4s ease;
 }
 
@@ -49,7 +34,7 @@ canvas {
 /* ===== Title ===== */
 .game-title {
     font-size: clamp(2rem, 8vw, 4.5rem);
-    background: linear-gradient(135deg, #ff6bcb, #ffb86c, #f8ff6b, #6bffb8, #6bcbff);
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink), var(--accent-amber));
     background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -57,12 +42,11 @@ canvas {
     animation: gradientShift 4s ease infinite;
     line-height: 1.4;
     margin-bottom: 0.5rem;
-    text-shadow: 0 0 40px rgba(255, 107, 203, 0.3);
 }
 
 .subtitle {
     font-size: clamp(0.6rem, 2vw, 1rem);
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
     letter-spacing: 0.5em;
     margin-bottom: 3rem;
 }
@@ -82,7 +66,7 @@ canvas {
 
 .key-label {
     font-size: clamp(0.4rem, 1.2vw, 0.6rem);
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     letter-spacing: 0.05em;
     margin-right: 0.8rem;
 }
@@ -93,16 +77,17 @@ canvas {
     justify-content: center;
     width: 56px;
     height: 56px;
-    background: linear-gradient(145deg, #2a2a4a, #1a1a35);
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
     font-size: 1.2rem;
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-game);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     box-shadow:
-        0 4px 0 #0a0a1a,
-        0 6px 12px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        0 4px 0 var(--bg-primary),
+        0 6px 12px rgba(0, 0, 0, 0.3);
     transition: transform 0.1s, box-shadow 0.1s;
 }
 
@@ -114,23 +99,23 @@ canvas {
 
 .instructions p {
     font-size: clamp(0.5rem, 1.5vw, 0.75rem);
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
     line-height: 1.8;
 }
 
 /* ===== Start Prompt ===== */
 .start-prompt {
     font-size: clamp(0.45rem, 1.2vw, 0.65rem);
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted);
     letter-spacing: 0.1em;
 }
 
 /* ===== Game Over ===== */
 .game-over-title {
     font-size: clamp(1.5rem, 6vw, 3rem);
-    color: #ff4757;
+    color: var(--accent-orange);
     margin-bottom: 2rem;
-    text-shadow: 0 0 30px rgba(255, 71, 87, 0.5);
+    text-shadow: 0 0 30px rgba(251, 146, 60, 0.4);
     animation: glitch 2s infinite;
 }
 
@@ -140,26 +125,26 @@ canvas {
 
 .final-score-label {
     font-size: clamp(0.5rem, 1.5vw, 0.7rem);
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted);
     margin-bottom: 0.5rem;
     letter-spacing: 0.3em;
 }
 
 .final-score {
     font-size: clamp(2rem, 8vw, 4rem);
-    color: #fff;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    color: var(--text-primary);
+    text-shadow: 0 0 20px rgba(240, 240, 245, 0.2);
 }
 
 .best-score {
     font-size: clamp(1.2rem, 4vw, 2rem);
-    color: #ffd700;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    color: var(--accent-amber);
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
 }
 
 .new-record {
     font-size: clamp(0.6rem, 2vw, 0.9rem);
-    color: #ffd700;
+    color: var(--accent-amber);
     margin-bottom: 1.5rem;
     animation: pulse 0.8s ease infinite;
 }
@@ -178,31 +163,33 @@ canvas {
 }
 
 .go-btn {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-game);
     font-size: clamp(0.5rem, 1.5vw, 0.7rem);
     padding: 14px 24px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-medium);
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
     letter-spacing: 0.05em;
     min-width: 160px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .go-btn-retry {
-    background: linear-gradient(135deg, rgba(46, 213, 115, 0.3), rgba(46, 213, 115, 0.1));
-    color: #2ed573;
-    border-color: rgba(46, 213, 115, 0.4);
+    background: rgba(52, 211, 153, 0.1);
+    color: var(--accent-emerald);
+    border-color: rgba(52, 211, 153, 0.4);
 }
 
 .go-btn-retry:hover {
-    background: linear-gradient(135deg, rgba(46, 213, 115, 0.5), rgba(46, 213, 115, 0.25));
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(46, 213, 115, 0.3);
+    background: rgba(52, 211, 153, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(52, 211, 153, 0.2);
 }
 
 .go-btn-retry:active {
@@ -210,15 +197,15 @@ canvas {
 }
 
 .go-btn-select {
-    background: linear-gradient(135deg, rgba(107, 203, 255, 0.3), rgba(107, 203, 255, 0.1));
-    color: #6bcbff;
-    border-color: rgba(107, 203, 255, 0.4);
+    background: rgba(96, 165, 250, 0.1);
+    color: var(--accent-blue);
+    border-color: rgba(96, 165, 250, 0.4);
 }
 
 .go-btn-select:hover {
-    background: linear-gradient(135deg, rgba(107, 203, 255, 0.5), rgba(107, 203, 255, 0.25));
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(107, 203, 255, 0.3);
+    background: rgba(96, 165, 250, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(96, 165, 250, 0.2);
 }
 
 .go-btn-select:active {
@@ -244,18 +231,18 @@ canvas {
 }
 
 #scoreHud {
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-game);
     font-size: clamp(1.2rem, 4vw, 2rem);
-    color: #fff;
+    color: var(--text-primary);
     text-shadow:
         0 2px 0 rgba(0, 0, 0, 0.5),
-        0 0 20px rgba(255, 255, 255, 0.2);
+        0 0 20px rgba(240, 240, 245, 0.15);
 }
 
 #timerBar {
     width: min(300px, 60vw);
     height: 8px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -264,10 +251,10 @@ canvas {
 #timerFill {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, #ff4757, #ffb86c, #2ed573);
+    background: linear-gradient(90deg, var(--accent-orange), var(--accent-amber), var(--accent-emerald));
     border-radius: 4px;
     transition: width 0.1s linear;
-    box-shadow: 0 0 8px rgba(46, 213, 115, 0.4);
+    box-shadow: 0 0 8px rgba(52, 211, 153, 0.3);
 }
 
 /* ===== Animations ===== */
@@ -380,23 +367,24 @@ canvas {
     z-index: 20;
     width: 44px;
     height: 44px;
-    border: none;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     font-size: 22px;
     line-height: 44px;
     text-align: center;
     cursor: pointer;
-    color: #fff;
-    transition: background 0.2s, transform 0.15s;
+    color: var(--text-primary);
+    transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
     touch-action: manipulation;
 }
 
 #homeBtn:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--border-hover);
+    transform: scale(1.08);
 }
 
 #homeBtn:active {
@@ -420,7 +408,7 @@ canvas {
     height: 110px;
     border: none;
     font-size: 28px;
-    font-family: 'Press Start 2P', monospace;
+    font-family: var(--font-game);
     cursor: pointer;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
@@ -440,24 +428,24 @@ canvas {
 }
 
 .touch-btn-left {
-    background: rgba(65, 105, 225, 0.3);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(96, 165, 250, 0.15);
+    border-right: 1px solid var(--border-subtle);
     border-radius: 0;
-    color: #8ab4ff;
+    color: var(--accent-blue);
 }
 
 .touch-btn-left:active {
-    background: rgba(65, 105, 225, 0.6);
+    background: rgba(96, 165, 250, 0.35);
 }
 
 .touch-btn-right {
-    background: rgba(255, 107, 87, 0.3);
+    background: rgba(251, 146, 60, 0.15);
     border-radius: 0;
-    color: #ffb4a5;
+    color: var(--accent-orange);
 }
 
 .touch-btn-right:active {
-    background: rgba(255, 107, 87, 0.6);
+    background: rgba(251, 146, 60, 0.35);
 }
 
 /* ===== 세로 모드 대응 ===== */
