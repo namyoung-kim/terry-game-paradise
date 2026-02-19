@@ -58,13 +58,26 @@
 
     bestScore = parseInt(localStorage.getItem('snake_best') || '0');
 
+    // D-pad height reservation for mobile
+    const DPAD_BOTTOM_MARGIN = 24; // matches CSS bottom value
+
+    function getDpadHeight() {
+        const el = document.getElementById('dpad');
+        if (!el) return 0;
+        const rect = el.getBoundingClientRect();
+        // If dpad is hidden (display:none), height is 0 — perfect for desktop
+        return rect.height > 0 ? rect.height + DPAD_BOTTOM_MARGIN + 10 : 0;
+    }
+
     function calcBoard() {
-        const minDim = Math.min(W(), H());
+        const dpadH = getDpadHeight();
+        const availH = H() - dpadH;
+        const minDim = Math.min(W(), availH);
         boardSize = Math.floor(minDim * 0.85);
         cellSize = Math.floor(boardSize / GRID);
         boardSize = cellSize * GRID;
         offsetX = (W() - boardSize) / 2;
-        offsetY = (H() - boardSize) / 2;
+        offsetY = (availH - boardSize) / 2;
     }
 
     function initGame() {
@@ -323,6 +336,7 @@
         if (state === 'START') {
             drawStartScreen();
             drawHomeBtn();
+            updateDpadVisibility();
             return;
         }
 
@@ -345,6 +359,8 @@
         if (state === 'OVER') {
             drawOverScreen();
         }
+
+        updateDpadVisibility();
     }
 
     // ===== Input: Keyboard =====
@@ -424,6 +440,65 @@
             e.preventDefault();
         }
     });
+
+    // ===== Input: D-Pad (Mobile soft keys) =====
+    const dpad = document.getElementById('dpad');
+    const dpadBtns = document.querySelectorAll('.dpad-btn');
+
+    function showDpad(visible) {
+        if (dpad) {
+            dpad.classList.toggle('visible', visible);
+        }
+    }
+
+    // Direction map for D-pad buttons
+    const DIR_MAP = {
+        up: { x: 0, y: -1 },
+        down: { x: 0, y: 1 },
+        left: { x: -1, y: 0 },
+        right: { x: 1, y: 0 },
+    };
+
+    dpadBtns.forEach(btn => {
+        const dir = btn.dataset.dir;
+
+        // Use touchstart for immediate response on mobile
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (state === 'START' || state === 'OVER') {
+                initGame();
+                state = 'PLAY';
+                showDpad(true);
+                return;
+            }
+
+            if (state !== 'PLAY') return;
+
+            const d = DIR_MAP[dir];
+            if (!d) return;
+
+            // Prevent reversing direction (can't go opposite way)
+            if (d.x !== 0 && direction.x === 0) {
+                nextDirection = d;
+            } else if (d.y !== 0 && direction.y === 0) {
+                nextDirection = d;
+            }
+        }, { passive: false });
+
+        // Also handle click for edge cases
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    // ===== D-Pad visibility: show when PLAY, hide otherwise =====
+    // Integrate into the main loop
+    function updateDpadVisibility() {
+        showDpad(state === 'PLAY');
+    }
 
     // ===== Init =====
     initGame();

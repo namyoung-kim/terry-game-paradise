@@ -19,6 +19,22 @@
 
 <body>
     <canvas id="gameCanvas"></canvas>
+
+    <!-- Mobile D-Pad -->
+    <div id="dpad" class="dpad-container">
+        <div class="dpad-row">
+            <button class="dpad-btn" data-dir="up" aria-label="위">▲</button>
+        </div>
+        <div class="dpad-row">
+            <button class="dpad-btn" data-dir="left" aria-label="왼쪽">◀</button>
+            <div class="dpad-center"></div>
+            <button class="dpad-btn" data-dir="right" aria-label="오른쪽">▶</button>
+        </div>
+        <div class="dpad-row">
+            <button class="dpad-btn" data-dir="down" aria-label="아래">▼</button>
+        </div>
+    </div>
+
     <script src="game.js"></script>
 </body>
 
