@@ -168,6 +168,63 @@ canvas {
     display: none;
 }
 
+/* ===== Game Over Buttons ===== */
+.game-over-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.go-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(0.5rem, 1.5vw, 0.7rem);
+    padding: 14px 24px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    letter-spacing: 0.05em;
+    min-width: 160px;
+}
+
+.go-btn-retry {
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.3), rgba(46, 213, 115, 0.1));
+    color: #2ed573;
+    border-color: rgba(46, 213, 115, 0.4);
+}
+
+.go-btn-retry:hover {
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.5), rgba(46, 213, 115, 0.25));
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(46, 213, 115, 0.3);
+}
+
+.go-btn-retry:active {
+    transform: scale(0.95);
+}
+
+.go-btn-select {
+    background: linear-gradient(135deg, rgba(107, 203, 255, 0.3), rgba(107, 203, 255, 0.1));
+    color: #6bcbff;
+    border-color: rgba(107, 203, 255, 0.4);
+}
+
+.go-btn-select:hover {
+    background: linear-gradient(135deg, rgba(107, 203, 255, 0.5), rgba(107, 203, 255, 0.25));
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(107, 203, 255, 0.3);
+}
+
+.go-btn-select:active {
+    transform: scale(0.95);
+}
+
 /* ===== HUD ===== */
 #hud {
     position: fixed;

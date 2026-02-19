@@ -1374,7 +1374,7 @@ document.addEventListener('keydown', (e) => {
         if (state === 'MENU') {
             showCharacterSelect();
         } else if (state === 'GAME_OVER' && !falling) {
-            showCharacterSelect();
+            startGame(); // Enter = 바로 재시작
         }
         return;
     }
@@ -1431,11 +1431,26 @@ startScreen.addEventListener('touchstart', (e) => {
     if (state === 'MENU') showCharacterSelect();
 });
 
-gameOverScreen.addEventListener('click', (e) => {
+// 바로 재시작 버튼
+const retryBtn = document.getElementById('retryBtn');
+const selectCharBtn = document.getElementById('selectCharBtn');
+
+retryBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (state === 'GAME_OVER' && !falling) startGame();
+});
+retryBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (state === 'GAME_OVER' && !falling) startGame();
+});
+
+// 캐릭터 선택 버튼
+selectCharBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (state === 'GAME_OVER' && !falling) showCharacterSelect();
 });
-gameOverScreen.addEventListener('touchstart', (e) => {
+selectCharBtn.addEventListener('touchstart', (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (state === 'GAME_OVER' && !falling) showCharacterSelect();
@@ -1451,8 +1466,8 @@ gameCanvas.addEventListener('click', (e) => {
         showCharacterSelect();
         return;
     }
-    if (state === 'GAME_OVER' && !falling) {
-        showCharacterSelect();
+    // 게임오버는 오버레이 버튼으로 처리
+    if (state === 'GAME_OVER') {
         return;
     }
 
