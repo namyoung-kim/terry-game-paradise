@@ -1,6 +1,4 @@
-// ===== 태리의 게임천국 - 메인 허브 =====
-const canvas = document.getElementById('hubCanvas');
-const ctx = canvas.getContext('2d');
+// ===== 태리의 게임천국 - 메인 허브 (DOM 기반) =====
 
 // ===== 게임 목록 =====
 const GAMES = [
@@ -9,599 +7,211 @@ const GAMES = [
         name: '무한의 계단',
         emoji: '🏗️',
         description: '계단을 끝없이 올라가자!',
-        path: 'games/infinite-stairs/index.html',
-        color1: '#4169E1',
-        color2: '#1a1a6e',
-        accent: '#FFD700'
+        path: 'games/infinite-stairs/index.html'
     },
     {
         id: 'ox-quiz',
         name: 'OX 퀴즈',
         emoji: '❓',
         description: 'O일까? X일까?',
-        path: 'games/ox-quiz/index.html',
-        color1: '#FF6347',
-        color2: '#8B0000',
-        accent: '#00FF7F'
+        path: 'games/ox-quiz/index.html'
     },
     {
         id: 'math-king',
         name: '암산왕',
         emoji: '🧮',
         description: '암산의 달인에 도전!',
-        path: 'games/math-king/index.html',
-        color1: '#A78BFA',
-        color2: '#4C1D95',
-        accent: '#FCD34D'
+        path: 'games/math-king/index.html'
     },
     {
         id: 'memory-card',
         name: '카드 뒤집기',
         emoji: '🃏',
         description: '같은 그림을 찾아라!',
-        path: 'games/memory-card/index.html',
-        color1: '#E879F9',
-        color2: '#701A75',
-        accent: '#FDE047'
+        path: 'games/memory-card/index.html'
     },
     {
         id: 'claw-machine',
         name: '인형뽑기',
         emoji: '🧸',
         description: '크레인으로 인형을 뽑아라!',
-        path: 'games/claw-machine/index.html',
-        color1: '#FF69B4',
-        color2: '#8B0045',
-        accent: '#FFD700'
+        path: 'games/claw-machine/index.html'
     },
     {
         id: 'whack-a-mole',
         name: '두더지 잡기',
         emoji: '🔨',
         description: '두더지를 잡아라!',
-        path: 'games/whack-a-mole/index.html',
-        color1: '#FF8C00',
-        color2: '#8B4513',
-        accent: '#FFD700'
+        path: 'games/whack-a-mole/index.html'
     }
 ];
 
-// ===== 상태 =====
-let hubState = 'TITLE'; // TITLE, SELECT
+// ===== DOM References =====
+const titleScreen = document.getElementById('titleScreen');
+const selectScreen = document.getElementById('selectScreen');
+const startBtn = document.getElementById('startBtn');
+const backBtn = document.getElementById('backBtn');
+const gameGrid = document.getElementById('gameGrid');
+const transitionOverlay = document.getElementById('transitionOverlay');
+
+// ===== State =====
+let currentScreen = 'TITLE'; // TITLE, SELECT
 let selectedIndex = 0;
-let titleAlpha = 0;
-let titleFadeIn = true;
-let stars = [];
-let particles = [];
-let enterPulse = 0;
-let transitionAlpha = 0;
 let transitioning = false;
-let transitionTarget = '';
 
-// 모바일 스크롤
-let scrollOffset = 0;
-let scrollVelocity = 0;
-let touchStartY = 0;
-let touchLastY = 0;
-let isTouchDragging = false;
-let touchMoved = false;
+// ===== 게임 카드 생성 =====
+function createGameCards() {
+    gameGrid.innerHTML = '';
+    GAMES.forEach((game, index) => {
+        const card = document.createElement('div');
+        card.className = 'game-card';
+        card.dataset.game = game.id;
+        card.dataset.index = index;
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `${game.name} - ${game.description}`);
 
-// ===== Canvas =====
-function resizeCanvas() {
-    canvas.width = window.innerWidth * window.devicePixelRatio;
-    canvas.height = window.innerHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        card.innerHTML = `
+            <div class="card-emoji">${game.emoji}</div>
+            <div class="card-info">
+                <div class="card-name">${game.name}</div>
+                <div class="card-desc">${game.description}</div>
+            </div>
+            <svg class="card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        `;
+
+        // 클릭/터치 이벤트
+        card.addEventListener('click', () => handleCardClick(index));
+
+        gameGrid.appendChild(card);
+    });
+    updateSelectedCard();
 }
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
 
-const W = () => window.innerWidth;
-const H = () => window.innerHeight;
+// ===== 화면 전환 =====
+function showScreen(screen) {
+    if (transitioning) return;
 
-// ===== 별 필드 =====
-function initStars() {
-    stars = [];
-    for (let i = 0; i < 200; i++) {
-        stars.push({
-            x: Math.random() * W(),
-            y: Math.random() * H(),
-            size: Math.random() * 2.5 + 0.3,
-            speed: Math.random() * 0.3 + 0.05,
-            brightness: Math.random() * 0.7 + 0.3,
-            twinkleSpeed: Math.random() * 0.03 + 0.01,
-            twinkleOffset: Math.random() * Math.PI * 2
-        });
-    }
-}
-initStars();
+    currentScreen = screen;
 
-// ===== 파티클 =====
-function spawnParticles(x, y, color, count) {
-    for (let i = 0; i < count; i++) {
-        particles.push({
-            x, y,
-            vx: (Math.random() - 0.5) * 6,
-            vy: (Math.random() - 0.5) * 6,
-            life: 1,
-            decay: Math.random() * 0.02 + 0.01,
-            size: Math.random() * 5 + 2,
-            color
-        });
+    if (screen === 'TITLE') {
+        titleScreen.classList.add('active');
+        selectScreen.classList.remove('active');
+    } else if (screen === 'SELECT') {
+        titleScreen.classList.remove('active');
+        selectScreen.classList.add('active');
+        updateSelectedCard();
     }
 }
 
-// ===== 배경 =====
-function drawBackground() {
-    const gradient = ctx.createLinearGradient(0, 0, 0, H());
-    gradient.addColorStop(0, '#050510');
-    gradient.addColorStop(0.5, '#0a0a2e');
-    gradient.addColorStop(1, '#0f0f3d');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, W(), H());
-
-    // 별
-    const time = Date.now() * 0.001;
-    for (const star of stars) {
-        star.y += star.speed;
-        if (star.y > H()) { star.y = 0; star.x = Math.random() * W(); }
-        const twinkle = Math.sin(time * star.twinkleSpeed * 60 + star.twinkleOffset) * 0.3 + 0.7;
-        ctx.globalAlpha = star.brightness * twinkle;
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-}
-
-// ===== 타이틀 화면 =====
-function drawTitle() {
-    drawBackground();
-
-    const time = Date.now() * 0.001;
-
-    // 타이틀 텍스트 크기 계산
-    const titleSize = Math.min(48, W() * 0.06);
-    const subtitleSize = Math.min(16, W() * 0.02);
-
-    // 타이틀 글로우
-    ctx.save();
-    ctx.shadowColor = '#FFD700';
-    ctx.shadowBlur = 30 + Math.sin(time * 2) * 10;
-
-    // 메인 타이틀
-    ctx.font = `bold ${titleSize}px 'Press Start 2P', monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    // 그라데이션 텍스트
-    const titleGrad = ctx.createLinearGradient(0, H() * 0.35, 0, H() * 0.35 + titleSize);
-    titleGrad.addColorStop(0, '#FFD700');
-    titleGrad.addColorStop(0.5, '#FFA500');
-    titleGrad.addColorStop(1, '#FF6347');
-    ctx.fillStyle = titleGrad;
-
-    // 타이틀 바운스
-    const bounce = Math.sin(time * 1.5) * 5;
-    ctx.fillText('태리의', W() / 2, H() * 0.32 + bounce);
-    ctx.fillText('게임천국', W() / 2, H() * 0.32 + titleSize * 1.3 + bounce);
-    ctx.restore();
-
-    // 이모지 장식
-    const emojiSize = Math.min(30, W() * 0.04);
-    ctx.font = `${emojiSize}px serif`;
-    const emojis = ['🎮', '⭐', '🏆', '🎲', '🎯', '🎪'];
-    for (let i = 0; i < emojis.length; i++) {
-        const angle = time * 0.5 + (i / emojis.length) * Math.PI * 2;
-        const radius = Math.min(200, W() * 0.25);
-        const ex = W() / 2 + Math.cos(angle) * radius;
-        const ey = H() * 0.35 + Math.sin(angle) * radius * 0.4;
-        ctx.globalAlpha = 0.6 + Math.sin(time * 2 + i) * 0.3;
-        ctx.fillText(emojis[i], ex - emojiSize / 2, ey);
-    }
-    ctx.globalAlpha = 1;
-
-    // ENTER 안내
-    enterPulse = Math.sin(time * 3) * 0.3 + 0.7;
-    ctx.font = `${subtitleSize}px 'Press Start 2P', monospace`;
-    ctx.fillStyle = `rgba(255, 255, 255, ${enterPulse})`;
-    ctx.textAlign = 'center';
-    ctx.fillText('ENTER를 눌러 시작', W() / 2, H() * 0.75);
-
-    // 하단 크레딧
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-    ctx.font = `${Math.min(10, W() * 0.012)}px 'Press Start 2P', monospace`;
-    ctx.fillText('© 2026 태리의 게임천국', W() / 2, H() * 0.95);
-}
-
-// ===== 게임 선택 화면 =====
-function drawGameSelect() {
-    drawBackground();
-
-    const time = Date.now() * 0.001;
-    const isPortrait = W() < H();
-
-    // 스크롤 관성 적용
-    if (!isTouchDragging && Math.abs(scrollVelocity) > 0.1) {
-        scrollOffset += scrollVelocity;
-        scrollVelocity *= 0.92;
-    } else if (!isTouchDragging) {
-        scrollVelocity = 0;
-    }
-
-    // 스크롤 범위 제한
-    if (isPortrait) {
-        const { cardH, gap } = getCardLayout();
-        const rows = GAMES.length; // maxCols=1 in portrait
-        const totalContentH = rows * (cardH + gap) - gap;
-        const visibleH = H() * 0.78; // 상단/하단 여백 제외
-        const maxScroll = Math.max(0, totalContentH - visibleH);
-        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
-    } else {
-        scrollOffset = 0;
-    }
-
-    // 상단 타이틀
-    const headerSize = Math.min(24, W() * 0.04);
-    ctx.font = `${headerSize}px 'Press Start 2P', monospace`;
-    ctx.fillStyle = '#FFD700';
-    ctx.textAlign = 'center';
-    ctx.fillText('🎮 게임 선택 🎮', W() / 2, H() * 0.08);
-
-    // 게임 카드 레이아웃 (세로/가로 모드 대응)
-    let maxCols, cardW, cardH;
-    if (isPortrait) {
-        maxCols = 1;
-        cardW = Math.min(280, W() * 0.75);
-        cardH = cardW * 0.45;
-    } else {
-        maxCols = Math.min(5, GAMES.length);
-        cardW = Math.min(220, (W() - 80) / maxCols - 20);
-        cardH = cardW * 1.2;
-    }
-    const rows = Math.ceil(GAMES.length / maxCols);
-    const gap = isPortrait ? 16 : 20;
-    const totalW = Math.min(GAMES.length, maxCols) * (cardW + gap) - gap;
-    const totalH = rows * (cardH + gap) - gap;
-    const startX = (W() - totalW) / 2;
-    const startY = isPortrait ? H() * 0.14 : (H() - totalH) / 2;
-
-    for (let i = 0; i < GAMES.length; i++) {
-        const game = GAMES[i];
-        const col = i % maxCols;
-        const row = Math.floor(i / maxCols);
-        const cx = startX + col * (cardW + gap);
-        const cy = startY + row * (cardH + gap) - scrollOffset;
-        const isSelected = i === selectedIndex;
-
-        // 화면 밖이면 스킵
-        if (cy + cardH < H() * 0.05 || cy > H() * 0.90) continue;
-
-        // 선택 애니메이션
-        const hoverOffset = isSelected ? Math.sin(time * 3) * 4 : 0;
-        const scale = isSelected ? 1.05 : 1;
-        const drawX = cx - (cardW * (scale - 1)) / 2;
-        const drawY = cy - (cardH * (scale - 1)) / 2 + hoverOffset;
-        const drawW = cardW * scale;
-        const drawH = cardH * scale;
-
-        ctx.save();
-
-        // 카드 배경
-        if (isSelected) {
-            ctx.shadowColor = game.accent;
-            ctx.shadowBlur = 25;
-        }
-
-        // 그라데이션 배경
-        const cardGrad = ctx.createLinearGradient(drawX, drawY, drawX, drawY + drawH);
-        cardGrad.addColorStop(0, isSelected ? game.color1 : game.color2);
-        cardGrad.addColorStop(1, game.color2);
-        ctx.fillStyle = cardGrad;
-
-        // 라운드 사각형
-        roundRect(ctx, drawX, drawY, drawW, drawH, 12);
-        ctx.fill();
-
-        // 테두리
-        ctx.strokeStyle = isSelected ? game.accent : 'rgba(255,255,255,0.15)';
-        ctx.lineWidth = isSelected ? 3 : 1;
-        roundRect(ctx, drawX, drawY, drawW, drawH, 12);
-        ctx.stroke();
-
-        ctx.shadowBlur = 0;
-
-        if (isPortrait) {
-            // 세로모드: 이모지 왼쪽 + 텍스트 오른쪽 가로배치
-            const emojiSize = Math.min(36, drawH * 0.5);
-            ctx.font = `${emojiSize}px serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(game.emoji, drawX + drawH * 0.45, drawY + drawH / 2);
-
-            const nameSize = Math.min(13, drawW * 0.06);
-            ctx.font = `bold ${nameSize}px 'Press Start 2P', monospace`;
-            ctx.fillStyle = '#fff';
-            ctx.textAlign = 'left';
-            ctx.fillText(game.name, drawX + drawH * 0.8, drawY + drawH * 0.4);
-
-            const descSize = Math.min(9, drawW * 0.04);
-            ctx.font = `${descSize}px 'Press Start 2P', monospace`;
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            ctx.fillText(game.description, drawX + drawH * 0.8, drawY + drawH * 0.65);
+// ===== 카드 선택 상태 업데이트 =====
+function updateSelectedCard() {
+    const cards = gameGrid.querySelectorAll('.game-card');
+    cards.forEach((card, i) => {
+        if (i === selectedIndex) {
+            card.classList.add('selected');
         } else {
-            // 가로모드: 기존 레이아웃
-            const emojiSize = Math.min(50, drawW * 0.3);
-            ctx.font = `${emojiSize}px serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(game.emoji, drawX + drawW / 2, drawY + drawH * 0.35);
-
-            const nameSize = Math.min(14, drawW * 0.08);
-            ctx.font = `bold ${nameSize}px 'Press Start 2P', monospace`;
-            ctx.fillStyle = '#fff';
-            ctx.fillText(game.name, drawX + drawW / 2, drawY + drawH * 0.65);
-
-            const descSize = Math.min(10, drawW * 0.05);
-            ctx.font = `${descSize}px 'Press Start 2P', monospace`;
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            ctx.fillText(game.description, drawX + drawW / 2, drawY + drawH * 0.8);
+            card.classList.remove('selected');
         }
+    });
+}
 
-        ctx.restore();
-    }
+// ===== 카드 클릭 핸들러 =====
+function handleCardClick(index) {
+    if (transitioning) return;
 
-    // 세로모드 스크롤 인디케이터
-    if (isPortrait) {
-        const totalContentH = GAMES.length * (cardH + gap) - gap;
-        const visibleH = H() * 0.78;
-        const maxScroll = Math.max(0, totalContentH - visibleH);
-        if (maxScroll > 0) {
-            const scrollBarH = Math.max(30, visibleH * (visibleH / totalContentH));
-            const scrollBarY = H() * 0.12 + (scrollOffset / maxScroll) * (visibleH - scrollBarH);
-            ctx.fillStyle = 'rgba(255,255,255,0.2)';
-            roundRect(ctx, W() - 8, scrollBarY, 4, scrollBarH, 2);
-            ctx.fill();
-        }
-    }
-
-    // 하단 안내
-    const instrSize = Math.min(11, W() * 0.014);
-    ctx.font = `${instrSize}px 'Press Start 2P', monospace`;
-    ctx.fillStyle = `rgba(255,255,255,${0.3 + Math.sin(time * 2) * 0.2})`;
-    ctx.textAlign = 'center';
-    if (isPortrait) {
-        ctx.fillText('스크롤하여 탐색    터치하여 실행', W() / 2, H() * 0.93);
+    if (index === selectedIndex) {
+        // 이미 선택된 카드 클릭 → 게임 진입
+        launchGame(index);
     } else {
-        ctx.fillText('← → 선택    ENTER 실행    ESC 뒤로', W() / 2, H() * 0.93);
-    }
-
-    // 파티클
-    for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx; p.y += p.vy;
-        p.life -= p.decay;
-        ctx.globalAlpha = p.life;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-        if (p.life <= 0) particles.splice(i, 1);
-    }
-    ctx.globalAlpha = 1;
-}
-
-// ===== 전환 효과 =====
-function drawTransition() {
-    if (!transitioning) return;
-    transitionAlpha += 0.03;
-    ctx.fillStyle = `rgba(0, 0, 0, ${Math.min(transitionAlpha, 1)})`;
-    ctx.fillRect(0, 0, W(), H());
-    if (transitionAlpha >= 1.2) {
-        window.location.href = transitionTarget;
+        // 다른 카드 클릭 → 선택
+        selectedIndex = index;
+        updateSelectedCard();
     }
 }
 
-// ===== 유틸 =====
-function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
+// ===== 게임 실행 =====
+function launchGame(index) {
+    if (transitioning) return;
+    transitioning = true;
+
+    const game = GAMES[index];
+
+    // 전환 애니메이션
+    transitionOverlay.classList.add('active');
+    setTimeout(() => {
+        window.location.href = game.path;
+    }, 450);
 }
 
-// ===== 카드 레이아웃 계산 (입력 핸들러와 공유) =====
-function getCardLayout() {
-    const isPortrait = W() < H();
-    let maxCols, cardW, cardH;
-    if (isPortrait) {
-        maxCols = 1;
-        cardW = Math.min(280, W() * 0.75);
-        cardH = cardW * 0.45;
-    } else {
-        maxCols = Math.min(5, GAMES.length);
-        cardW = Math.min(220, (W() - 80) / maxCols - 20);
-        cardH = cardW * 1.2;
-    }
-    const gap = isPortrait ? 16 : 20;
-    const totalW = Math.min(GAMES.length, maxCols) * (cardW + gap) - gap;
-    const rows = Math.ceil(GAMES.length / maxCols);
-    const totalH = rows * (cardH + gap) - gap;
-    const startX = (W() - totalW) / 2;
-    const startY = isPortrait ? H() * 0.14 : (H() - totalH) / 2;
-    return { maxCols, cardW, cardH, gap, startX, startY, isPortrait };
-}
-
-// ===== 입력 처리 =====
+// ===== 키보드 입력 =====
 document.addEventListener('keydown', (e) => {
     if (transitioning) return;
 
-    if (hubState === 'TITLE') {
-        if (e.key === 'Enter') {
+    if (currentScreen === 'TITLE') {
+        if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            hubState = 'SELECT';
-            spawnParticles(W() / 2, H() / 2, '#FFD700', 30);
+            showScreen('SELECT');
         }
         return;
     }
 
-    if (hubState === 'SELECT') {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-            e.preventDefault();
-            selectedIndex = (selectedIndex - 1 + GAMES.length) % GAMES.length;
-            spawnParticles(W() / 2, H() / 2, GAMES[selectedIndex].accent, 8);
-        } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-            e.preventDefault();
-            selectedIndex = (selectedIndex + 1) % GAMES.length;
-            spawnParticles(W() / 2, H() / 2, GAMES[selectedIndex].accent, 8);
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            transitioning = true;
-            transitionAlpha = 0;
-            transitionTarget = GAMES[selectedIndex].path;
-            spawnParticles(W() / 2, H() / 2, '#fff', 40);
-        } else if (e.key === 'Escape') {
-            e.preventDefault();
-            hubState = 'TITLE';
+    if (currentScreen === 'SELECT') {
+        switch (e.key) {
+            case 'ArrowLeft':
+            case 'ArrowUp':
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + GAMES.length) % GAMES.length;
+                updateSelectedCard();
+                scrollToSelected();
+                break;
+            case 'ArrowRight':
+            case 'ArrowDown':
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % GAMES.length;
+                updateSelectedCard();
+                scrollToSelected();
+                break;
+            case 'Enter':
+                e.preventDefault();
+                launchGame(selectedIndex);
+                break;
+            case 'Escape':
+                e.preventDefault();
+                showScreen('TITLE');
+                break;
         }
     }
 });
 
-// 스크롤 방지
+// 기본 스크롤 방지 (방향키)
 window.addEventListener('keydown', (e) => {
-    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' ', 'Enter'].includes(e.key)) {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].includes(e.key)) {
         e.preventDefault();
     }
 });
 
-// ===== 마우스/터치 =====
-// 데스크톱 클릭
-canvas.addEventListener('click', (e) => {
-    if (transitioning) return;
-
-    if (hubState === 'TITLE') {
-        hubState = 'SELECT';
-        scrollOffset = 0;
-        spawnParticles(W() / 2, H() / 2, '#FFD700', 30);
-        return;
+// ===== 선택된 카드로 스크롤 =====
+function scrollToSelected() {
+    const cards = gameGrid.querySelectorAll('.game-card');
+    if (cards[selectedIndex]) {
+        cards[selectedIndex].scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+        });
     }
-
-    if (hubState === 'SELECT') {
-        const rect = canvas.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
-        const { maxCols, cardW, cardH, gap, startX, startY } = getCardLayout();
-
-        for (let i = 0; i < GAMES.length; i++) {
-            const col = i % maxCols;
-            const row = Math.floor(i / maxCols);
-            const cx = startX + col * (cardW + gap);
-            const cy = startY + row * (cardH + gap) - scrollOffset;
-
-            if (mx >= cx && mx <= cx + cardW && my >= cy && my <= cy + cardH) {
-                if (i === selectedIndex) {
-                    transitioning = true;
-                    transitionAlpha = 0;
-                    transitionTarget = GAMES[i].path;
-                    spawnParticles(mx, my, '#fff', 40);
-                } else {
-                    selectedIndex = i;
-                    spawnParticles(mx, my, GAMES[i].accent, 8);
-                }
-                break;
-            }
-        }
-    }
-});
-
-// 모바일 터치 스크롤
-canvas.addEventListener('touchstart', (e) => {
-    if (transitioning) return;
-    if (hubState === 'TITLE') {
-        hubState = 'SELECT';
-        scrollOffset = 0;
-        spawnParticles(W() / 2, H() / 2, '#FFD700', 30);
-        e.preventDefault();
-        return;
-    }
-    if (hubState === 'SELECT') {
-        const touch = e.touches[0];
-        touchStartY = touch.clientY;
-        touchLastY = touch.clientY;
-        isTouchDragging = true;
-        touchMoved = false;
-        scrollVelocity = 0;
-        e.preventDefault();
-    }
-}, { passive: false });
-
-canvas.addEventListener('touchmove', (e) => {
-    if (!isTouchDragging || hubState !== 'SELECT') return;
-    const touch = e.touches[0];
-    const dy = touchLastY - touch.clientY;
-    scrollOffset += dy;
-    scrollVelocity = dy;
-    touchLastY = touch.clientY;
-    if (Math.abs(touch.clientY - touchStartY) > 8) {
-        touchMoved = true;
-    }
-    e.preventDefault();
-}, { passive: false });
-
-canvas.addEventListener('touchend', (e) => {
-    if (hubState !== 'SELECT') return;
-    isTouchDragging = false;
-
-    // 드래그하지 않고 탭한 경우에만 카드 선택
-    if (!touchMoved) {
-        const touch = e.changedTouches[0];
-        const rect = canvas.getBoundingClientRect();
-        const mx = touch.clientX - rect.left;
-        const my = touch.clientY - rect.top;
-        const { maxCols, cardW, cardH, gap, startX, startY } = getCardLayout();
-
-        for (let i = 0; i < GAMES.length; i++) {
-            const col = i % maxCols;
-            const row = Math.floor(i / maxCols);
-            const cx = startX + col * (cardW + gap);
-            const cy = startY + row * (cardH + gap) - scrollOffset;
-
-            if (mx >= cx && mx <= cx + cardW && my >= cy && my <= cy + cardH) {
-                if (i === selectedIndex) {
-                    transitioning = true;
-                    transitionAlpha = 0;
-                    transitionTarget = GAMES[i].path;
-                    spawnParticles(mx, my, '#fff', 40);
-                } else {
-                    selectedIndex = i;
-                    spawnParticles(mx, my, GAMES[i].accent, 8);
-                }
-                break;
-            }
-        }
-    }
-    e.preventDefault();
-}, { passive: false });
-
-// ===== 메인 루프 =====
-function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (hubState === 'TITLE') {
-        drawTitle();
-    } else if (hubState === 'SELECT') {
-        drawGameSelect();
-    }
-
-    drawTransition();
-    requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+// ===== 버튼 이벤트 =====
+startBtn.addEventListener('click', () => {
+    if (!transitioning) showScreen('SELECT');
+});
+
+backBtn.addEventListener('click', () => {
+    if (!transitioning) showScreen('TITLE');
+});
+
+// ===== 초기화 =====
+createGameCards();

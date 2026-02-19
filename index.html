@@ -5,12 +5,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>태리의 게임천국</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <meta name="description" content="태리와 함께하는 다양한 미니게임! 무한의 계단, OX 퀴즈, 암산왕 등 재미있는 게임을 즐겨보세요.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        rel="stylesheet">
     <link rel="stylesheet" href="hub.css">
 </head>
 
 <body>
-    <canvas id="hubCanvas"></canvas>
+    <!-- 배경 Orbs -->
+    <div class="bg-orbs" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- 타이틀 화면 -->
+    <section id="titleScreen" class="screen active">
+        <div class="title-content">
+            <div class="title-badge">🎮</div>
+            <h1 class="main-title">
+                <span class="title-line">태리의</span>
+                <span class="title-line accent">게임천국</span>
+            </h1>
+            <p class="title-subtitle">Play, Fun, Repeat!</p>
+            <button id="startBtn" class="start-btn">
+                <span>시작하기</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </button>
+            <p class="start-hint">또는 Enter를 눌러 시작</p>
+        </div>
+        <footer class="title-footer">
+            <p>© 2026 태리의 게임천국</p>
+        </footer>
+    </section>
+
+    <!-- 게임 선택 화면 -->
+    <section id="selectScreen" class="screen">
+        <header class="select-header">
+            <button id="backBtn" class="back-btn" aria-label="뒤로가기">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <h2 class="select-title">게임 선택</h2>
+        </header>
+        <div id="gameGrid" class="game-grid">
+            <!-- JS에서 카드 동적 생성 -->
+        </div>
+        <footer class="select-footer">
+            <p class="nav-hint">
+                <kbd>←</kbd><kbd>→</kbd> 선택 &nbsp;
+                <kbd>Enter</kbd> 실행 &nbsp;
+                <kbd>Esc</kbd> 뒤로
+            </p>
+        </footer>
+    </section>
+
+    <!-- 전환 오버레이 -->
+    <div id="transitionOverlay" class="transition-overlay"></div>
+
     <script src="hub.js"></script>
 </body>
 
