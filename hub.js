@@ -64,6 +64,20 @@ const GAMES = [
         emoji: '🦖',
         description: '장애물을 피해 달려라!',
         path: 'games/dino-run/index.html'
+    },
+    {
+        id: 'flappy-bird',
+        name: '플래피버드',
+        emoji: '🐦',
+        description: '파이프 사이를 날아가자!',
+        path: 'games/flappy-bird/index.html'
+    },
+    {
+        id: 'tetris',
+        name: '테트리스',
+        emoji: '🧱',
+        description: '블록을 쌓아 줄을 완성해라!',
+        path: 'games/tetris/index.html'
     }
 ];
 
