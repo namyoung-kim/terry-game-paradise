@@ -2,3 +2,81 @@
 canvas {
     image-rendering: pixelated;
 }
+
+/* ===== 모바일 가로모드 강제 오버레이 ===== */
+#rotate-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #0c0c1d;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.rotate-content {
+    text-align: center;
+    color: #f0f0f5;
+    font-family: 'Pretendard Variable', 'Inter', sans-serif;
+}
+
+.rotate-icon {
+    font-size: 72px;
+    animation: rotatePhone 2s ease-in-out infinite;
+    margin-bottom: 24px;
+}
+
+.rotate-content p {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+
+.rotate-hint {
+    font-size: 14px;
+    color: rgba(240, 240, 245, 0.5);
+}
+
+@keyframes rotatePhone {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(90deg);
+    }
+
+    50% {
+        transform: rotate(90deg);
+    }
+
+    75% {
+        transform: rotate(0deg);
+    }
+}
+
+/* 모바일 세로모드: 오버레이 보이고 캔버스 숨김 */
+@media (max-width: 768px) and (orientation: portrait) {
+    #rotate-overlay {
+        display: flex;
+    }
+
+    canvas {
+        display: none;
+    }
+}
+
+/* 가로모드 또는 데스크톱: 오버레이 숨김 */
+@media (orientation: landscape),
+(min-width: 769px) {
+    #rotate-overlay {
+        display: none !important;
+    }
+
+    canvas {
+        display: block;
+    }
+}

@@ -19,7 +19,23 @@
 
 <body>
     <canvas id="gameCanvas"></canvas>
+
+    <!-- 모바일 세로모드 회전 안내 오버레이 -->
+    <div id="rotate-overlay">
+        <div class="rotate-content">
+            <div class="rotate-icon">📱</div>
+            <p>기기를 가로로 돌려주세요</p>
+            <div class="rotate-hint">이 게임은 가로 모드에서 플레이할 수 있습니다</div>
+        </div>
+    </div>
+
     <script src="game.js"></script>
+    <script>
+        // 가로모드 강제 시도
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => { });
+        }
+    </script>
 </body>
 
 </html>
