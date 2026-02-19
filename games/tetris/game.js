@@ -6,6 +6,11 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
+    // ===== Board Constants (must be declared before resize/calcBoard) =====
+    const COLS = 10;
+    const ROWS = 20;
+    let cellSize, boardX, boardY, boardW, boardH;
+
     function resize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -89,10 +94,7 @@
         ctx.globalAlpha = 1;
     }
 
-    // ===== Board Constants =====
-    const COLS = 10;
-    const ROWS = 20;
-    let cellSize, boardX, boardY, boardW, boardH;
+    // (Board constants COLS, ROWS, cellSize etc. declared above resize)
 
     function calcBoard() {
         const touchCtrl = document.getElementById('touchControls');
