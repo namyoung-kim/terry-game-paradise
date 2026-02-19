@@ -379,7 +379,7 @@ function drawMachine() {
     const craneAreaLeft = mx + 25;
     const craneAreaRight = mx + mw - 25;
     const craneAreaTop = railY + 10;
-    const craneAreaBottom = my + mh * 0.5;
+    const craneAreaBottom = my + mh * 0.85;
     const cx = craneAreaLeft + crane.x * (craneAreaRight - craneAreaLeft);
     const cy = craneAreaTop + crane.y * (craneAreaBottom - craneAreaTop);
 
@@ -894,7 +894,7 @@ function updateCrane() {
 
     if (gameState === STATE.DROPPING) {
         const { my, mh } = getMachineArea();
-        const maxRope = mh * 0.65;
+        const maxRope = mh * 0.85;
         crane.ropeLength += 3;
         crane.clawOpen = 1;
 
