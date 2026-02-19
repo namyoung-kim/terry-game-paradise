@@ -6,7 +6,8 @@ const ctx = canvas.getContext('2d');
 function resizeCanvas() {
     canvas.width = window.innerWidth * window.devicePixelRatio;
     canvas.height = window.innerHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    // scale 누적 방지: 항상 초기화 후 적용
+    ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
@@ -581,12 +582,15 @@ function drawParticles() {
         p.y += p.vy;
         p.vy += 0.15; // 중력
         p.life -= p.decay;
-        ctx.globalAlpha = Math.max(0, p.life);
+        if (p.life <= 0) {
+            particles.splice(i, 1);
+            continue;
+        }
+        ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, Math.max(0.1, p.size * p.life), 0, Math.PI * 2);
         ctx.fill();
-        if (p.life <= 0) particles.splice(i, 1);
     }
 
     for (let i = emojiParticles.length - 1; i >= 0; i--) {
@@ -951,36 +955,49 @@ canvas.addEventListener('touchstart', (e) => {
 let lastTime = Date.now();
 
 function gameLoop() {
-    const now = Date.now();
-    const dt = now - lastTime;
-    lastTime = now;
+    try {
+        const now = Date.now();
+        const dt = now - lastTime;
+        lastTime = now;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // scale이 리셋될 수 있으므로 매 프레임 보정
+        ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+        ctx.clearRect(0, 0, W(), H());
 
-    if (gameState === STATE.READY) {
-        drawReadyScreen();
-    } else if (gameState === STATE.PLAYING) {
-        // 두더지 스폰
-        const config = getStageConfig();
-        lastSpawnTime += dt;
-        if (lastSpawnTime >= config.spawnInterval) {
-            spawnMole();
-            lastSpawnTime = 0;
+        if (gameState === STATE.READY) {
+            drawReadyScreen();
+        } else if (gameState === STATE.PLAYING) {
+            // 두더지 스폰
+            const config = getStageConfig();
+            lastSpawnTime += dt;
+            if (lastSpawnTime >= config.spawnInterval) {
+                spawnMole();
+                lastSpawnTime = 0;
+            }
+
+            // 두더지 업데이트
+            updateMoles(dt);
+
+            // 자동 스테이지 클리어 체크 (게임 중인 경우에만)
+            if (gameState === STATE.PLAYING && score >= config.targetScore && timeLeft > 0) {
+                checkStageEnd();
+            }
+
+            // 상태가 변경되었을 수 있으므로 현재 상태에 맞는 화면 그리기
+            if (gameState === STATE.PLAYING) {
+                drawPlayScreen();
+            } else if (gameState === STATE.STAGE_CLEAR) {
+                drawStageClearScreen();
+            } else if (gameState === STATE.GAME_OVER) {
+                drawGameOverScreen();
+            }
+        } else if (gameState === STATE.STAGE_CLEAR) {
+            drawStageClearScreen();
+        } else if (gameState === STATE.GAME_OVER) {
+            drawGameOverScreen();
         }
-
-        // 두더지 업데이트
-        updateMoles(dt);
-
-        // 자동 스테이지 클리어 체크 (게임 중인 경우에만)
-        if (gameState === STATE.PLAYING && score >= config.targetScore && timeLeft > 0) {
-            checkStageEnd();
-        }
-
-        drawPlayScreen();
-    } else if (gameState === STATE.STAGE_CLEAR) {
-        drawStageClearScreen();
-    } else if (gameState === STATE.GAME_OVER) {
-        drawGameOverScreen();
+    } catch (e) {
+        console.error('gameLoop error:', e);
     }
 
     requestAnimationFrame(gameLoop);
