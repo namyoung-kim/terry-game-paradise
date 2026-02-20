@@ -31,6 +31,11 @@
         <div class="start-content">
             <h1 class="start-title">🧁 머지 스위츠</h1>
             <p class="start-desc">아이템을 합쳐서 빵집을 키워보세요!</p>
+            <div class="start-features">
+                <div class="feature-item">📦 장애물을 부수고</div>
+                <div class="feature-item">🔒 잠긴 아이템을 해제하고</div>
+                <div class="feature-item">⭐ 합성으로 보상을 얻으세요!</div>
+            </div>
             <div class="start-chains">
                 <span>🌾→🍰</span>
                 <span>🌱→🌳</span>
@@ -69,11 +74,12 @@
                 <div class="energy-track">
                     <div class="energy-fill" id="energyFill"></div>
                 </div>
-                <span class="energy-text" id="energyText">20/20</span>
+                <span class="energy-text" id="energyText">100/100</span>
+                <span class="energy-timer" id="energyTimerText"></span>
             </div>
         </div>
 
-        <!-- 보드 -->
+        <!-- 보드 (7x9) -->
         <div class="board" id="board"></div>
 
         <!-- 하단: 생성기 + 판매 + 업그레이드 -->
@@ -112,13 +118,15 @@
 
             <div class="help-section">
                 <h3>🎯 목표</h3>
-                <p>같은 아이템을 <strong>합쳐서</strong> 상위 아이템을 만들고, <strong>손님 주문</strong>을 완성하여 코인을 모으세요! 코인으로 빵집을 업그레이드할 수
-                    있어요.</p>
+                <p>같은 아이템을 <strong>합쳐서</strong> 상위 아이템을 만들고, <strong>손님 주문</strong>을 완성하여 코인을 모으세요!</p>
             </div>
 
             <div class="help-section">
-                <h3>🛎️ 주문 시스템</h3>
-                <p>화면 상단에 3개의 주문이 표시됩니다. 요구하는 아이템을 만들면 <strong>자동으로 완성</strong>되고 코인 보상을 받아요.</p>
+                <h3>🔒 잠긴 아이템 & 📦 장애물</h3>
+                <ul class="help-list">
+                    <li>🔒 <strong>잠긴 아이템</strong>: 회색으로 비활성화되어 드래그 불가. 같은 아이템을 위에 합성하면 해제!</li>
+                    <li>📦 <strong>장애물</strong>: 인접한 칸에서 합성하면 HP가 줄어들고 파괴됩니다.</li>
+                </ul>
             </div>
 
             <div class="help-section">
@@ -126,20 +134,23 @@
                 <ul class="help-list">
                     <li>🖱️ 아이템을 <strong>드래그</strong>하여 같은 아이템 위에 놓으면 합성!</li>
                     <li>🖱️ 빈 칸으로 드래그하면 <strong>이동</strong></li>
+                    <li>🖱️ 다른 아이템 위에 놓으면 <strong>튕겨서 돌아옴</strong></li>
                     <li>🗑️ <strong>판매 모드</strong>에서 아이템을 탭하면 코인으로 판매</li>
                 </ul>
             </div>
 
             <div class="help-section">
-                <h3>⚡ 에너지</h3>
-                <p>아이템 생성 시 <strong>1 소모</strong>, 합성 시 <strong>1 회복</strong>. <strong>30초마다 자동으로 1</strong> 회복됩니다. 빵집
-                    업그레이드 시 최대치가 올라가요!</p>
+                <h3>🛎️ 주문 시스템</h3>
+                <p>주문에 필요한 아이템이 보드에 있으면 <strong>제출 버튼</strong>이 활성화됩니다. 녹색 버튼을 눌러 제출하세요!</p>
             </div>
 
             <div class="help-section">
-                <h3>🏠 빵집 업그레이드</h3>
-                <p>코인을 모아 빵집을 업그레이드하면 <strong>에너지 최대치 증가</strong>, <strong>주문 보상 배율 증가</strong>, <strong>새로운 아이템 종류
-                        해금</strong>!</p>
+                <h3>⚡ 에너지 & 생성기</h3>
+                <ul class="help-list">
+                    <li>아이템 생성 시 에너지 <strong>1 소모</strong></li>
+                    <li>에너지는 <strong>2분마다 1</strong>씩 자동 회복</li>
+                    <li>생성기는 <strong>횟수 제한</strong>이 있으며, 소진 시 <strong>쿨타임</strong> 후 리필</li>
+                </ul>
             </div>
 
             <div class="help-section">
@@ -166,16 +177,6 @@
                         <span>✨→🔮→⭐→🌙→🪄→📖</span>
                     </div>
                 </div>
-            </div>
-
-            <div class="help-section">
-                <h3>💡 팁</h3>
-                <ul class="help-list">
-                    <li>같은 계열의 아이템만 합성 가능합니다</li>
-                    <li>보드가 가득 차면 판매 모드로 불필요한 아이템을 정리하세요</li>
-                    <li>주문 아이템에 집중하면 효율적이에요</li>
-                    <li>높은 레벨의 아이템일수록 판매 가격이 높아요</li>
-                </ul>
             </div>
 
             <button class="game-btn game-btn-primary help-ok-btn" id="helpOkBtn">알겠어요!</button>

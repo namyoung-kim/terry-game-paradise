@@ -1,4 +1,4 @@
-/* ===== 머지 스위츠 — Game Styles ===== */
+/* ===== 머지 스위츠 v2 — Game Styles ===== */
 /* Common styles inherited from ../theme.css */
 
 /* 기본 오버라이드 */
@@ -33,7 +33,7 @@ body {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-subtle);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 340px;
+    max-width: 360px;
     width: 90%;
 }
 
@@ -51,7 +51,23 @@ body {
 .start-desc {
     color: var(--text-secondary);
     font-size: clamp(0.75rem, 2vw, 0.95rem);
+    margin-bottom: 16px;
+}
+
+.start-features {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     margin-bottom: 20px;
+}
+
+.feature-item {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
 }
 
 .start-chains {
@@ -70,9 +86,9 @@ body {
     inset: 0;
     display: flex;
     flex-direction: column;
-    padding: 8px;
+    padding: 6px;
     padding-top: 48px;
-    gap: 6px;
+    gap: 4px;
     max-width: 500px;
     margin: 0 auto;
 }
@@ -81,7 +97,7 @@ body {
 .game-hud {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
@@ -96,7 +112,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px;
+    padding: 5px 10px;
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     border-radius: var(--radius-sm);
@@ -104,7 +120,7 @@ body {
 }
 
 .shop-emoji {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
 }
 
 .shop-info {
@@ -114,14 +130,14 @@ body {
 
 .shop-name {
     font-family: var(--font-display);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     color: var(--text-primary);
     line-height: 1.2;
 }
 
 .shop-level {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     font-weight: 600;
     color: var(--accent-amber);
 }
@@ -130,7 +146,7 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 6px 14px;
+    padding: 5px 12px;
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     border-radius: var(--radius-sm);
@@ -139,12 +155,12 @@ body {
 }
 
 .coin-icon {
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .coin-value {
     font-family: var(--font-display);
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 800;
     color: #fbbf24;
 }
@@ -165,7 +181,7 @@ body {
 /* ===== 주문 패널 ===== */
 .orders-panel {
     display: flex;
-    gap: 6px;
+    gap: 4px;
 }
 
 .order-card {
@@ -173,14 +189,14 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 6px 4px;
+    gap: 3px;
+    padding: 5px 3px;
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-subtle);
     transition: all 0.3s ease;
-    min-height: 52px;
+    min-height: 48px;
 }
 
 .order-card.completed {
@@ -205,7 +221,7 @@ body {
 
 .order-items {
     display: flex;
-    gap: 4px;
+    gap: 3px;
     align-items: center;
     flex-wrap: wrap;
     justify-content: center;
@@ -215,14 +231,14 @@ body {
     display: flex;
     align-items: center;
     gap: 1px;
-    font-size: 1rem;
-    padding: 1px 4px;
+    font-size: 0.9rem;
+    padding: 1px 3px;
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.04);
 }
 
 .order-goal small {
-    font-size: 0.55rem;
+    font-size: 0.5rem;
     font-weight: 600;
     color: var(--text-muted);
 }
@@ -236,30 +252,70 @@ body {
 }
 
 .order-reward {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     font-weight: 700;
     color: #fbbf24;
+}
+
+/* 주문 제출 버튼 */
+.order-submit-btn {
+    padding: 2px 8px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    font-size: 0.55rem;
+    font-weight: 700;
+    cursor: not-allowed;
+    transition: all 0.2s ease;
+    opacity: 0.4;
+}
+
+.order-submit-btn.active {
+    background: rgba(52, 211, 153, 0.2);
+    border-color: var(--accent-emerald);
+    color: var(--accent-emerald);
+    cursor: pointer;
+    opacity: 1;
+    animation: submitPulse 1.5s ease-in-out infinite;
+}
+
+.order-submit-btn.active:hover {
+    background: rgba(52, 211, 153, 0.35);
+    transform: scale(1.05);
+}
+
+@keyframes submitPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 6px 2px rgba(52, 211, 153, 0.5);
+    }
 }
 
 /* ===== 에너지 바 ===== */
 .energy-row {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 8px;
+    gap: 5px;
+    padding: 3px 8px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
 }
 
 .energy-label {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     white-space: nowrap;
 }
 
 .energy-track {
     flex: 1;
-    height: 8px;
+    height: 7px;
     background: rgba(255, 255, 255, 0.06);
     border-radius: 4px;
     overflow: hidden;
@@ -273,25 +329,35 @@ body {
 }
 
 .energy-text {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 600;
     color: var(--text-secondary);
     min-width: 42px;
     text-align: center;
 }
 
-/* ===== 보드 ===== */
+.energy-timer {
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--accent-amber);
+    min-width: 30px;
+    text-align: center;
+}
+
+/* ===== 보드 (7x9) ===== */
 .board {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-    padding: 8px;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    gap: 3px;
+    padding: 5px;
     background: var(--glass-bg);
     backdrop-filter: blur(16px);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-subtle);
     flex: 1;
-    align-content: center;
+    align-content: stretch;
+    min-height: 0;
 }
 
 .cell {
@@ -302,11 +368,12 @@ body {
     justify-content: center;
     background: rgba(255, 255, 255, 0.04);
     border: 1.5px solid var(--border-subtle);
-    border-radius: var(--radius-sm);
+    border-radius: 6px;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s, transform 0.15s;
-    aspect-ratio: 1;
     overflow: hidden;
+    min-height: 0;
+    min-width: 0;
 }
 
 .cell:hover {
@@ -342,6 +409,86 @@ body {
     transform: scale(0.9);
 }
 
+/* 잠긴 타일 (Locked/Dust) */
+.cell.locked {
+    background: rgba(120, 120, 140, 0.15);
+    border-color: rgba(120, 120, 140, 0.4);
+    cursor: not-allowed;
+}
+
+.cell.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    font-size: 0.5rem;
+    opacity: 0.7;
+}
+
+.cell.locked .item {
+    filter: grayscale(0.6) brightness(0.7);
+}
+
+/* 장애물 타일 (Obstacle/Crate) */
+.cell.obstacle {
+    background: rgba(139, 90, 43, 0.2);
+    border-color: rgba(139, 90, 43, 0.5);
+    cursor: default;
+    border-width: 2px;
+    border-style: dashed;
+}
+
+.obstacle-hp {
+    font-size: 0.45rem;
+    font-weight: 700;
+    color: #e57b3a;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0 3px;
+    border-radius: 3px;
+}
+
+/* 별(Star) 아이템 */
+.cell .star-item {
+    animation: starGlow 2s ease-in-out infinite;
+}
+
+@keyframes starGlow {
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.5) drop-shadow(0 0 4px rgba(255, 200, 0, 0.6));
+    }
+}
+
+/* 버블 아이템 */
+.cell.bubble {
+    border-color: rgba(100, 200, 255, 0.4);
+    background: rgba(100, 200, 255, 0.08);
+}
+
+.cell.bubble::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border: 1px solid rgba(100, 200, 255, 0.3);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.bubble-item {
+    opacity: 0.7;
+}
+
+.bubble-timer {
+    font-size: 0.4rem;
+    font-weight: 700;
+    color: rgba(100, 200, 255, 0.8);
+}
+
 /* 판매 모드 */
 .cell.sell-mode {
     border-color: rgba(239, 68, 68, 0.3);
@@ -355,13 +502,13 @@ body {
 
 .sell-price {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
-    font-size: 0.5rem;
+    bottom: 1px;
+    right: 1px;
+    font-size: 0.45rem;
     font-weight: 700;
     color: #fbbf24;
     background: rgba(0, 0, 0, 0.4);
-    padding: 0 3px;
+    padding: 0 2px;
     border-radius: 3px;
 }
 
@@ -388,13 +535,13 @@ body {
 
 /* 아이템 */
 .item {
-    font-size: clamp(1.4rem, 6vw, 2.2rem);
+    font-size: clamp(1rem, 4vw, 1.6rem);
     line-height: 1;
     transition: transform 0.2s ease;
 }
 
 .item-level {
-    font-size: 0.5rem;
+    font-size: 0.4rem;
     font-weight: 600;
     color: var(--text-muted);
     opacity: 0.7;
@@ -403,7 +550,7 @@ body {
 /* 드래그 고스트 */
 .drag-ghost {
     position: fixed;
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     pointer-events: none;
     z-index: 1000;
     transform: translate(-50%, -50%);
@@ -430,6 +577,27 @@ body {
     }
 }
 
+/* 바운스백 애니메이션 */
+.cell.bounce-back {
+    animation: bounceBack 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bounceBack {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 @keyframes spawnIn {
     0% {
         transform: scale(0);
@@ -447,18 +615,6 @@ body {
 }
 
 /* 파티클 */
-@keyframes particle-burst {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(2.5);
-        opacity: 0;
-    }
-}
-
 .merge-particles {
     position: absolute;
     inset: 0;
@@ -470,8 +626,8 @@ body {
 
 .merge-particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
+    width: 3px;
+    height: 3px;
     border-radius: 50%;
 }
 
@@ -479,32 +635,34 @@ body {
 .bottom-bar {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
 .generators {
     display: flex;
-    gap: 4px;
+    gap: 3px;
     justify-content: center;
     flex-wrap: wrap;
 }
 
 .generator-btn {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    padding: 6px 10px;
+    gap: 1px;
+    padding: 4px 8px;
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    overflow: hidden;
 }
 
 .generator-btn:hover {
@@ -522,13 +680,40 @@ body {
     pointer-events: none;
 }
 
+.generator-btn.cooling {
+    opacity: 0.5;
+    border-color: rgba(255, 160, 0, 0.3);
+}
+
 .generator-emoji {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+}
+
+.generator-name {
+    font-size: 0.5rem;
+    color: var(--text-muted);
 }
 
 .generator-cost {
-    font-size: 0.55rem;
+    font-size: 0.5rem;
     color: var(--text-muted);
+}
+
+.generator-capacity {
+    font-size: 0.45rem;
+    font-weight: 700;
+    color: var(--accent-amber);
+}
+
+/* 쿨다운 바 */
+.cooldown-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-amber), var(--accent-orange));
+    border-radius: 0 0 0 6px;
+    transition: width 1s linear;
 }
 
 /* 하단 액션 버튼 */
@@ -542,13 +727,13 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 8px 16px;
+    padding: 6px 14px;
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
