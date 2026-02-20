@@ -14,59 +14,123 @@
     ];
     const SPECIAL = { NONE: 0, STRIPE_H: 1, STRIPE_V: 2, BOMB: 3, RAINBOW: 4 };
 
+    // 장애물: ice(1~2겹), box(인접 매칭으로 파괴), chain(스왑불가, 인접 매칭으로 해제), stone(영구)
+    const OBS = { NONE: 0, ICE1: 1, ICE2: 2, BOX: 3, CHAIN: 4, STONE: 5 };
+
     // ===== 30 스테이지 =====
     const STAGES = [];
     (function buildStages() {
         const colors = [0, 1, 2, 3, 4, 5];
-        // 초급 1~5
-        for (let i = 0; i < 5; i++) {
-            STAGES.push({ moves: 30 - i, goals: [{ type: colors[i % 6], count: 15 + i * 3 }] });
+
+        function randPositions(count, exclude) {
+            const ex = new Set((exclude || []).map(p => `${p[0]},${p[1]}`));
+            const positions = [];
+            const all = [];
+            for (let r = 0; r < ROWS; r++)
+                for (let c = 0; c < COLS; c++)
+                    if (!ex.has(`${r},${c}`)) all.push([r, c]);
+            for (let i = all.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [all[i], all[j]] = [all[j], all[i]];
+            }
+            return all.slice(0, Math.min(count, all.length));
         }
-        // 초중급 6~10
+
+        // 초급 1~5 (장애물 없음)
         for (let i = 0; i < 5; i++) {
+            STAGES.push({ moves: 30 - i, goals: [{ type: colors[i % 6], count: 15 + i * 3 }], obstacles: [] });
+        }
+        // 초중급 6~10 (얼음 등장)
+        for (let i = 0; i < 5; i++) {
+            const iceCount = 3 + i * 2;
             STAGES.push({
                 moves: 25 - i, goals: [
                     { type: colors[i % 6], count: 15 + i * 2 },
                     { type: colors[(i + 2) % 6], count: 15 + i * 2 },
-                ]
+                ],
+                obstacleGen: () => {
+                    const obs = [];
+                    randPositions(iceCount).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.ICE1 }));
+                    return obs;
+                }
             });
         }
-        // 중급 11~15
+        // 중급 11~15 (얼음2겹 + 상자 등장)
         for (let i = 0; i < 5; i++) {
+            const iceCount = 3 + i;
+            const boxCount = 2 + i;
             STAGES.push({
                 moves: 22 - i, goals: [
                     { type: colors[i % 6], count: 20 + i * 2 },
                     { type: 'score', count: 2000 + i * 500 },
-                ]
+                ],
+                obstacleGen: () => {
+                    const obs = [];
+                    const used = [];
+                    randPositions(iceCount).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.ICE2 }); used.push(p); });
+                    randPositions(boxCount, used).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.BOX }));
+                    return obs;
+                }
             });
         }
-        // 중상급 16~20
+        // 중상급 16~20 (체인 등장)
         for (let i = 0; i < 5; i++) {
+            const chainCount = 3 + i;
+            const iceCount = 2 + i;
             STAGES.push({
                 moves: 20 - i, goals: [
                     { type: colors[i % 6], count: 18 + i * 2 },
                     { type: colors[(i + 1) % 6], count: 18 + i * 2 },
                     { type: colors[(i + 3) % 6], count: 15 + i * 2 },
-                ]
+                ],
+                obstacleGen: () => {
+                    const obs = [];
+                    const used = [];
+                    randPositions(chainCount).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.CHAIN }); used.push(p); });
+                    randPositions(iceCount, used).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.ICE1 }));
+                    return obs;
+                }
             });
         }
-        // 상급 21~25
+        // 상급 21~25 (돌벽 + 혼합)
         for (let i = 0; i < 5; i++) {
+            const stoneCount = 2 + Math.floor(i / 2);
+            const chainCount = 2 + i;
+            const iceCount = 2 + i;
             STAGES.push({
                 moves: 18 - i, goals: [
                     { type: colors[i % 6], count: 25 + i * 3 },
                     { type: colors[(i + 2) % 6], count: 25 + i * 3 },
-                ]
+                ],
+                obstacleGen: () => {
+                    const obs = [];
+                    const used = [];
+                    randPositions(stoneCount).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.STONE }); used.push(p); });
+                    randPositions(chainCount, used).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.CHAIN }); used.push(p); });
+                    randPositions(iceCount, used).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.ICE2 }));
+                    return obs;
+                }
             });
         }
-        // 최상급 26~30
+        // 최상급 26~30 (전체 혼합)
         for (let i = 0; i < 5; i++) {
+            const stoneCount = 3 + Math.floor(i / 2);
+            const boxCount = 2 + i;
+            const chainCount = 2 + i;
             STAGES.push({
                 moves: 15 - i, goals: [
                     { type: colors[i % 6], count: 30 + i * 3 },
                     { type: colors[(i + 1) % 6], count: 25 + i * 3 },
                     { type: 'score', count: 5000 + i * 1000 },
-                ]
+                ],
+                obstacleGen: () => {
+                    const obs = [];
+                    const used = [];
+                    randPositions(stoneCount).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.STONE }); used.push(p); });
+                    randPositions(boxCount, used).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.BOX }); used.push(p); });
+                    randPositions(chainCount, used).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.CHAIN }));
+                    return obs;
+                }
             });
         }
     })();
@@ -82,7 +146,7 @@
     const comboText = $('comboText');
 
     // ===== 상태 =====
-    let grid = [];       // grid[r][c] = { type, special }
+    let grid = [];       // grid[r][c] = { type, special, obs }
     let score = 0;
     let moves = 0;
     let stage = 0;
@@ -101,9 +165,21 @@
                 do {
                     type = randType();
                 } while (wouldMatch(r, c, type));
-                grid[r][c] = { type, special: SPECIAL.NONE };
+                grid[r][c] = { type, special: SPECIAL.NONE, obs: OBS.NONE };
             }
         }
+        // 장애물 배치
+        const sd = STAGES[stage % STAGES.length];
+        const obstacles = sd.obstacleGen ? sd.obstacleGen() : (sd.obstacles || []);
+        obstacles.forEach(o => {
+            if (o.type === OBS.STONE) {
+                grid[o.r][o.c] = { type: -1, special: SPECIAL.NONE, obs: OBS.STONE };
+            } else if (o.type === OBS.BOX) {
+                grid[o.r][o.c] = { type: -1, special: SPECIAL.NONE, obs: OBS.BOX };
+            } else {
+                grid[o.r][o.c].obs = o.type;
+            }
+        });
     }
 
     function randType() {
@@ -132,8 +208,20 @@
                 cell.dataset.c = c;
 
                 if (grid[r][c]) {
-                    const gem = createGemEl(grid[r][c]);
-                    cell.appendChild(gem);
+                    const data = grid[r][c];
+                    if (data.obs === OBS.STONE) {
+                        cell.classList.add('obs-stone');
+                        cell.innerHTML = '<div class="gem obs-gem">🪨</div>';
+                    } else if (data.obs === OBS.BOX) {
+                        cell.classList.add('obs-box');
+                        cell.innerHTML = '<div class="gem obs-gem">📦</div>';
+                    } else {
+                        const gem = createGemEl(data);
+                        cell.appendChild(gem);
+                        if (data.obs === OBS.ICE1) cell.classList.add('obs-ice1');
+                        if (data.obs === OBS.ICE2) cell.classList.add('obs-ice2');
+                        if (data.obs === OBS.CHAIN) cell.classList.add('obs-chain');
+                    }
                 }
 
                 cell.addEventListener('click', () => onCellClick(r, c));
@@ -224,6 +312,10 @@
     function onCellClick(r, c) {
         if (animating) return;
         if (!grid[r][c]) return;
+        // 돌벽/상자는 클릭 불가
+        if (grid[r][c].obs === OBS.STONE || grid[r][c].obs === OBS.BOX) return;
+        // 체인은 스왑 불가
+        if (grid[r][c].obs === OBS.CHAIN) return;
 
         if (!selected) {
             selected = { r, c };
@@ -479,9 +571,9 @@
         // 특수 아이템 생성
         specials.forEach(s => {
             if (s.special === SPECIAL.RAINBOW) {
-                grid[s.r][s.c] = { type: s.type, special: SPECIAL.RAINBOW };
+                grid[s.r][s.c] = { type: s.type, special: SPECIAL.RAINBOW, obs: OBS.NONE };
             } else {
-                grid[s.r][s.c] = { type: s.type, special: s.special };
+                grid[s.r][s.c] = { type: s.type, special: s.special, obs: OBS.NONE };
             }
         });
 
@@ -489,6 +581,37 @@
         for (const sa of specialActivations) {
             await activateSpecial(sa.r, sa.c, sa.special, sa.type);
         }
+
+        // 인접 장애물 처리
+        const processedObs = new Set();
+        cells.forEach(key => {
+            const [r, c] = key.split(',').map(Number);
+            // 상하좌우 인접 셈 체크
+            const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+            dirs.forEach(([dr, dc]) => {
+                const nr = r + dr, nc = c + dc;
+                if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) return;
+                if (!grid[nr][nc]) return;
+                const obsKey = `${nr},${nc}`;
+                if (processedObs.has(obsKey)) return;
+
+                const neighbor = grid[nr][nc];
+                if (neighbor.obs === OBS.ICE1) {
+                    neighbor.obs = OBS.NONE;
+                    processedObs.add(obsKey);
+                } else if (neighbor.obs === OBS.ICE2) {
+                    neighbor.obs = OBS.ICE1;
+                    processedObs.add(obsKey);
+                } else if (neighbor.obs === OBS.CHAIN) {
+                    neighbor.obs = OBS.NONE;
+                    processedObs.add(obsKey);
+                } else if (neighbor.obs === OBS.BOX) {
+                    grid[nr][nc] = null;
+                    processedObs.add(obsKey);
+                    score += 50;
+                }
+            });
+        });
 
         renderBoard();
         renderHUD();
@@ -611,6 +734,8 @@
         toRemove.forEach(key => {
             const [r, c] = key.split(',').map(Number);
             if (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c]) {
+                // 돌벽은 보호
+                if (grid[r][c].obs === OBS.STONE) return;
                 const gKey = `color_${grid[r][c].type}`;
                 goalProgress[gKey] = (goalProgress[gKey] || 0) + 1;
                 score += 30;
@@ -627,6 +752,11 @@
             let writeRow = ROWS - 1;
             for (let r = ROWS - 1; r >= 0; r--) {
                 if (grid[r][c]) {
+                    // 돌벽/상자는 고정 (낙하하지 않음)
+                    if (grid[r][c].obs === OBS.STONE || grid[r][c].obs === OBS.BOX) {
+                        writeRow = r - 1;
+                        continue;
+                    }
                     if (r !== writeRow) {
                         grid[writeRow][c] = grid[r][c];
                         grid[r][c] = null;
@@ -635,9 +765,10 @@
                     writeRow--;
                 }
             }
-            // 빈 칸 채우기
+            // 빈 칸 채우기 (돌벽/상자 위치는 스킵)
             for (let r = writeRow; r >= 0; r--) {
-                grid[r][c] = { type: randType(), special: SPECIAL.NONE };
+                if (grid[r][c] && (grid[r][c].obs === OBS.STONE || grid[r][c].obs === OBS.BOX)) continue;
+                grid[r][c] = { type: randType(), special: SPECIAL.NONE, obs: OBS.NONE };
                 fell = true;
             }
         }
