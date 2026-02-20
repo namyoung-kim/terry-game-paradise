@@ -20,6 +20,17 @@
 <body>
     <canvas id="gameCanvas"></canvas>
     <script src="game.js"></script>
+    <script>
+        const GAME_HELP = {
+            title: "📖 플래피버드 도움말",
+            sections: [
+                { heading: "🎯 목표", text: "파이프 사이를 통과하며 <strong>최고 점수</strong>에 도전하세요!" },
+                { heading: "👆 조작법", list: ["👉 <strong>스페이스바/클릭/탭</strong>으로 새가 위로 날아올라요", "👉 아무것도 안 누르면 중력으로 아래로 떨어져요"] },
+                { heading: "💡 팁", list: ["파이프 중간 높이를 유지하세요", "너무 높이 올라가면 위에 부딪혀요!", "리듬감 있게 탭하는 게 핵심이에요"] }
+            ]
+        };
+    </script>
+    <script src="../game-help.js"></script>
 </body>
 
 </html>

@@ -452,7 +452,7 @@
                 spawnDomParticles(r, c);
             }
         });
-        await delay(350);
+        await delay(700);
     }
 
     // ===== DOM 파티클 효과 =====
@@ -478,19 +478,43 @@
     }
 
     // ===== 낙하 애니메이션 =====
-    function animateFalling() {
-        for (let c = 0; c < COLS; c++) {
-            for (let r = 0; r < ROWS; r++) {
-                const gem = getGemEl(r, c);
-                if (gem && !gem.classList.contains('matched')) {
-                    gem.classList.add('falling');
-                    gem.addEventListener('animationend', function handler() {
-                        gem.classList.remove('falling');
-                        gem.removeEventListener('animationend', handler);
-                    });
-                }
+    function animateFalling(fallInfo) {
+        if (!fallInfo || fallInfo.length === 0) return;
+        // 먼저 낙하 전 위치로 gem을 오프셋
+        fallInfo.forEach(info => {
+            const gem = getGemEl(info.toR, info.toC);
+            if (gem) {
+                const cellEl = getCellEl(info.toR, info.toC);
+                const cellH = cellEl ? cellEl.getBoundingClientRect().height + 3 : 50;
+                const distance = (info.toR - info.fromR) * cellH;
+                gem.style.transition = 'none';
+                gem.style.transform = `translateY(${-distance}px)`;
+                if (info.isNew) gem.style.opacity = '0.3';
             }
-        }
+        });
+        // force reflow
+        boardEl.offsetHeight;
+        // 그 다음 transition으로 원래 위치로 슬라이드
+        fallInfo.forEach(info => {
+            const gem = getGemEl(info.toR, info.toC);
+            if (gem) {
+                gem.classList.add('falling');
+                gem.style.transform = 'translateY(0)';
+                gem.style.opacity = '1';
+            }
+        });
+        // transition 끝나면 클래스 제거
+        setTimeout(() => {
+            fallInfo.forEach(info => {
+                const gem = getGemEl(info.toR, info.toC);
+                if (gem) {
+                    gem.classList.remove('falling');
+                    gem.style.transition = '';
+                    gem.style.transform = '';
+                    gem.style.opacity = '';
+                }
+            });
+        }, 370);
     }
 
     // ===== 특수 아이템 이펙트 =====
@@ -617,7 +641,7 @@
         // ===== 일반 스왑 =====
         await animateSwap(r1, c1, r2, c2);
         swap(r1, c1, r2, c2);
-        const matches = findAllMatches();
+        const matches = findAllMatches({ r1, c1, r2, c2 });
 
         if (matches && matches.cells && matches.cells.size > 0) {
             moves--;
@@ -656,9 +680,27 @@
     }
 
     // ===== 매칭 탐지 =====
-    function findAllMatches() {
+    function findAllMatches(swapPos) {
         const matched = new Set();
         const specials = [];
+
+        // 스와이프 위치 셋
+        const swapKeys = new Set();
+        if (swapPos) {
+            swapKeys.add(`${swapPos.r1},${swapPos.c1}`);
+            swapKeys.add(`${swapPos.r2},${swapPos.c2}`);
+        }
+
+        // 매치 라인에서 스와이프 위치 찾기 헬퍼
+        function findSwapPosInRange(fixedR, fixedC, startIdx, endIdx, isHorizontal) {
+            for (let i = startIdx; i < endIdx; i++) {
+                const key = isHorizontal ? `${fixedR},${i}` : `${i},${fixedC}`;
+                if (swapKeys.has(key)) {
+                    return isHorizontal ? { r: fixedR, c: i } : { r: i, c: fixedC };
+                }
+            }
+            return null;
+        }
 
         // 가로 스캔
         for (let r = 0; r < ROWS; r++) {
@@ -673,9 +715,13 @@
                 if (len >= 3) {
                     for (let i = c; i < end; i++) matched.add(`${r},${i}`);
                     if (len === 4) {
-                        specials.push({ r, c: c + 1, special: SPECIAL.STRIPE_H, type });
+                        const sp = findSwapPosInRange(r, null, c, end, true);
+                        const pos = sp || { r, c: c + 1 };
+                        specials.push({ r: pos.r, c: pos.c, special: SPECIAL.STRIPE_H, type });
                     } else if (len >= 5) {
-                        specials.push({ r, c: c + 2, special: SPECIAL.RAINBOW, type });
+                        const sp = findSwapPosInRange(r, null, c, end, true);
+                        const pos = sp || { r, c: c + 2 };
+                        specials.push({ r: pos.r, c: pos.c, special: SPECIAL.RAINBOW, type });
                     }
                 }
                 c = end;
@@ -695,9 +741,13 @@
                 if (len >= 3) {
                     for (let i = r; i < end; i++) matched.add(`${i},${c}`);
                     if (len === 4) {
-                        specials.push({ r: r + 1, c, special: SPECIAL.STRIPE_V, type });
+                        const sp = findSwapPosInRange(null, c, r, end, false);
+                        const pos = sp || { r: r + 1, c };
+                        specials.push({ r: pos.r, c: pos.c, special: SPECIAL.STRIPE_V, type });
                     } else if (len >= 5) {
-                        specials.push({ r: r + 2, c, special: SPECIAL.RAINBOW, type });
+                        const sp = findSwapPosInRange(null, c, r, end, false);
+                        const pos = sp || { r: r + 2, c };
+                        specials.push({ r: pos.r, c: pos.c, special: SPECIAL.RAINBOW, type });
                     }
                 }
                 r = end;
@@ -973,7 +1023,7 @@
 
     // ===== 중력 낙하 + 채우기 =====
     function applyGravity() {
-        let fell = false;
+        const fallInfo = [];
         for (let c = 0; c < COLS; c++) {
             let writeRow = ROWS - 1;
             for (let r = ROWS - 1; r >= 0; r--) {
@@ -985,7 +1035,7 @@
                     if (r !== writeRow) {
                         grid[writeRow][c] = grid[r][c];
                         grid[r][c] = null;
-                        fell = true;
+                        fallInfo.push({ fromR: r, toR: writeRow, toC: c, isNew: false });
                     }
                     writeRow--;
                 }
@@ -993,20 +1043,21 @@
             for (let r = writeRow; r >= 0; r--) {
                 if (grid[r][c] && (grid[r][c].obs === OBS.STONE || grid[r][c].obs === OBS.BOX)) continue;
                 grid[r][c] = { type: randType(), special: SPECIAL.NONE, obs: OBS.NONE };
-                fell = true;
+                // 새 보석은 위에서 떨어지는 것처럼
+                fallInfo.push({ fromR: r - (writeRow - r + 1), toR: r, toC: c, isNew: true });
             }
         }
-        return fell;
+        return fallInfo;
     }
 
     // ===== 연쇄 루프 =====
     async function cascadeLoop() {
         let cascading = true;
         while (cascading) {
-            applyGravity();
+            const fallInfo = applyGravity();
             renderBoard();
-            animateFalling();
-            await delay(300);
+            animateFalling(fallInfo);
+            await delay(400);
 
             const matches = findAllMatches();
             if (matches && matches.cells && matches.cells.size > 0) {

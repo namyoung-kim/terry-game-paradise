@@ -70,6 +70,17 @@
     </div>
 
     <script src="game.js"></script>
+    <script>
+        const GAME_HELP = {
+            title: "📖 무한의 계단 도움말",
+            sections: [
+                { heading: "🎯 목표", text: "계단 방향에 맞춰 올바른 키를 눌러 <strong>최대한 높이</strong> 올라가세요!" },
+                { heading: "👆 조작법", list: ["👉 <strong>SPACE</strong>: 직진 (현재 방향으로 계속 올라감)", "👉 <strong>방향키 (↑↓←→)</strong>: 방향 전환", "👉 모바일: <strong>화면 터치</strong>로 조작"] },
+                { heading: "💡 팁", list: ["계단 방향을 빠르게 파악하세요", "시간 제한 바가 줄어들기 전에 올라가야 해요!", "콤보를 쌓으면 보너스 점수를 받아요"] }
+            ]
+        };
+    </script>
+    <script src="../game-help.js"></script>
 </body>
 
 </html>

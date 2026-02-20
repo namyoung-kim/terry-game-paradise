@@ -36,6 +36,17 @@
     </div>
 
     <script src="game.js"></script>
+    <script>
+        const GAME_HELP = {
+            title: "📖 뱀 게임 도움말",
+            sections: [
+                { heading: "🎯 목표", text: "먹이를 먹으며 뱀을 <strong>최대한 길게</strong> 키우세요!" },
+                { heading: "👆 조작법", list: ["👉 <strong>방향키 (↑↓←→)</strong>로 뱀의 방향 전환", "👉 모바일: 화면의 <strong>방향 버튼</strong> 사용"] },
+                { heading: "💡 팁", list: ["자기 몸에 부딪히면 게임 오버!", "벽에 부딪혀도 게임 오버!", "먹이를 먹을수록 뱀이 길어지고 속도가 빨라져요"] }
+            ]
+        };
+    </script>
+    <script src="../game-help.js"></script>
 </body>
 
 </html>

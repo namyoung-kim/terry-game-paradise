@@ -36,6 +36,17 @@
             screen.orientation.lock('landscape').catch(() => { });
         }
     </script>
+    <script>
+        const GAME_HELP = {
+            title: "📖 공룡 점프 도움말",
+            sections: [
+                { heading: "🎯 목표", text: "장애물을 피하며 <strong>최대한 멀리</strong> 달려보세요!" },
+                { heading: "👆 조작법", list: ["👉 <strong>스페이스바/탭</strong>으로 점프", "👉 <strong>아래 방향키</strong>로 숙이기 (높은 장애물 회피)", "👉 모바일에서는 <strong>화면 터치</strong>로 점프"] },
+                { heading: "💡 팁", list: ["속도가 점점 빨라지니 미리 준비하세요", "선인장은 점프, 익룡은 숙여서 피하세요", "가로 모드에서 플레이하세요!"] }
+            ]
+        };
+    </script>
+    <script src="../game-help.js"></script>
 </body>
 
 </html>

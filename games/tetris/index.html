@@ -34,6 +34,18 @@
     </div>
 
     <script src="game.js"></script>
+    <script>
+        const GAME_HELP = {
+            title: "📖 테트리스 도움말",
+            sections: [
+                { heading: "🎯 목표", text: "블록을 쌓아 <strong>한 줄을 가득 채우면</strong> 제거됩니다!" },
+                { heading: "👆 조작법", list: ["👉 <strong>←→</strong>: 블록 좌우 이동", "👉 <strong>↑</strong>: 블록 회전", "👉 <strong>↓</strong>: 빠르게 내리기", "👉 <strong>스페이스바</strong>: 즉시 떨어뜨리기 (하드드롭)"] },
+                { heading: "🌟 점수", list: ["1줄 제거: 100점", "2줄 동시: 300점", "3줄 동시: 500점", "4줄 동시 (테트리스!): 800점"] },
+                { heading: "💡 팁", list: ["블록이 위까지 쌓이면 게임 오버!", "I자 블록으로 4줄을 한번에 없애보세요", "미리 볼 다음 블록을 확인하고 전략을 세우세요"] }
+            ]
+        };
+    </script>
+    <script src="../game-help.js"></script>
 </body>
 
 </html>

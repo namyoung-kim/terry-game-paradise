@@ -20,6 +20,17 @@
 <body>
     <canvas id="gameCanvas"></canvas>
     <script src="game.js"></script>
+    <script>
+        const GAME_HELP = {
+            title: "📖 두더지 잡기 도움말",
+            sections: [
+                { heading: "🎯 목표", text: "구멍에서 나오는 두더지를 <strong>빠르게 잡으세요!</strong>" },
+                { heading: "👆 조작법", list: ["👉 두더지가 나오면 <strong>클릭/탭</strong>으로 잡기", "👉 두더지가 숨기 전에 빠르게 터치!"] },
+                { heading: "💡 팁", list: ["제한 시간 안에 최대한 많이 잡으세요", "시간이 지날수록 두더지가 빨라져요", "정확하게 두더지를 탭해야 점수가 올라요!"] }
+            ]
+        };
+    </script>
+    <script src="../game-help.js"></script>
 </body>
 
 </html>

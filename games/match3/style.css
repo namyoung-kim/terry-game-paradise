@@ -370,14 +370,34 @@ body {
         opacity: 1;
     }
 
+    15% {
+        transform: scale(1.15);
+        opacity: 0.3;
+    }
+
     30% {
-        transform: scale(1.4);
+        transform: scale(1.1);
         opacity: 1;
     }
 
+    45% {
+        transform: scale(1.05);
+        opacity: 0.2;
+    }
+
     60% {
-        transform: scale(1.4);
-        opacity: 0.7;
+        transform: scale(1.0);
+        opacity: 0.8;
+    }
+
+    75% {
+        transform: scale(0.8);
+        opacity: 0.15;
+    }
+
+    90% {
+        transform: scale(0.4);
+        opacity: 0.5;
     }
 
     100% {
@@ -387,7 +407,7 @@ body {
 }
 
 .gem.matched {
-    animation: matchPop 0.35s cubic-bezier(.2, .8, .2, 1) forwards;
+    animation: matchPop 0.7s ease-out forwards;
     pointer-events: none;
 }
 
@@ -417,29 +437,8 @@ body {
 }
 
 /* ===== 낙하 애니메이션 ===== */
-@keyframes fallIn {
-    0% {
-        transform: translateY(-120%);
-        opacity: 0.3;
-    }
-
-    60% {
-        transform: translateY(5%);
-        opacity: 1;
-    }
-
-    80% {
-        transform: translateY(-3%);
-    }
-
-    100% {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
 .gem.falling {
-    animation: fallIn 0.35s cubic-bezier(.34, 1.56, .64, 1);
+    transition: transform 0.35s ease-out, opacity 0.2s ease-out;
 }
 
 /* ===== 특수 아이템 이펙트 ===== */

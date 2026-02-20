@@ -20,6 +20,17 @@
 <body>
     <canvas id="gameCanvas"></canvas>
     <script src="game.js"></script>
+    <script>
+        const GAME_HELP = {
+            title: "📖 카드 뒤집기 도움말",
+            sections: [
+                { heading: "🎯 목표", text: "같은 그림의 카드 <strong>2장을 찾아</strong> 모두 짝을 맞추세요!" },
+                { heading: "👆 조작법", list: ["👉 카드를 <strong>클릭/탭</strong>하면 뒤집어져요", "👉 <strong>2장을 연속</strong>으로 뒤집어서 같은 그림이면 성공!", "👉 다르면 다시 뒤집어져요"] },
+                { heading: "💡 팁", list: ["카드 위치를 잘 기억하세요!", "적은 시도로 맞출수록 높은 점수", "스테이지가 올라가면 카드 수가 늘어나요"] }
+            ]
+        };
+    </script>
+    <script src="../game-help.js"></script>
 </body>
 
 </html>

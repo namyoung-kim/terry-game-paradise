@@ -20,6 +20,18 @@
 <body>
     <canvas id="gameCanvas"></canvas>
     <script src="game.js"></script>
+    <script>
+        const GAME_HELP = {
+            title: "📖 수박게임 도움말",
+            sections: [
+                { heading: "🎯 목표", text: "같은 과일끼리 합쳐서 <strong>수박</strong>을 만드세요!" },
+                { heading: "👆 조작법", list: ["👉 <strong>좌우로 움직여</strong> 과일을 떨어뜨릴 위치를 정하세요", "👉 <strong>탭/클릭</strong>으로 과일을 떨어뜨립니다"] },
+                { heading: "🍉 합성 순서", text: "🍒→🍇→🍊→🍋→🍑→🍎→🍐→🍏→🥥→🍈→🍉" },
+                { heading: "💡 팁", list: ["같은 과일이 닿으면 다음 단계로 합쳐져요", "과일이 위까지 쌓이면 게임 오버!", "큰 과일은 아래쪽에 모으면 유리해요"] }
+            ]
+        };
+    </script>
+    <script src="../game-help.js"></script>
 </body>
 
 </html>
