@@ -126,7 +126,7 @@
     const PIECE_TYPES = Object.keys(SHAPES);
 
     // ===== Game State =====
-    let state = 'START'; // START, PLAY, OVER
+    let state = 'START'; // START, DIFFICULTY, PLAY, OVER
     let board; // 2D array [row][col] = null or piece type
     let current, currentType, currentX, currentY;
     let nextType;
@@ -136,6 +136,17 @@
     let clearingLines, clearTimer;
 
     bestScore = parseInt(localStorage.getItem('tetris_best') || '0');
+
+    // ===== Difficulty Settings =====
+    let difficulty = 'normal';
+    let selectedDifficulty = 1; // 0=easy, 1=normal, 2=hard
+
+    const DIFFICULTY_SETTINGS = {
+        easy: { baseInterval: 1.2, speedStep: 0.05, minInterval: 0.10, lockDelay: 0.7, label: '쉬움', emoji: '🟢' },
+        normal: { baseInterval: 1.0, speedStep: 0.08, minInterval: 0.05, lockDelay: 0.5, label: '보통', emoji: '🟡' },
+        hard: { baseInterval: 0.6, speedStep: 0.12, minInterval: 0.03, lockDelay: 0.3, label: '어려움', emoji: '🔴' },
+    };
+    const DIFFICULTY_KEYS = ['easy', 'normal', 'hard'];
 
     // ===== 7-Bag Randomizer (standard Tetris fairness) =====
     let pieceBag = [];
@@ -155,13 +166,16 @@
     }
 
     function initGame() {
+        difficulty = DIFFICULTY_KEYS[selectedDifficulty];
+        const settings = DIFFICULTY_SETTINGS[difficulty];
+
         board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
         score = 0;
         level = 1;
         lines = 0;
         dropTimer = 0;
         lockTimer = 0;
-        lockDelay = 0.5;
+        lockDelay = settings.lockDelay;
         clearingLines = [];
         clearTimer = 0;
         pieceBag = [];
@@ -171,8 +185,8 @@
     }
 
     function calcDropInterval() {
-        // Speed increases with level
-        dropInterval = Math.max(0.05, 1.0 - (level - 1) * 0.08);
+        const settings = DIFFICULTY_SETTINGS[difficulty];
+        dropInterval = Math.max(settings.minInterval, settings.baseInterval - (level - 1) * settings.speedStep);
     }
 
     function spawnPiece() {
@@ -568,6 +582,82 @@
         });
     }
 
+    // ===== Drawing: Difficulty Selection Screen =====
+    // Store button rects for click/touch hit detection
+    let difficultyBtnRects = [];
+
+    function drawDifficultyScreen() {
+        const titleSize = Math.max(22, Math.min(W(), H()) * 0.045);
+        ctx.font = `800 ${titleSize}px 'Inter', sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = COLORS.text;
+        ctx.fillText('🎮 난이도 선택', W() / 2, H() * 0.25);
+
+        const btnW = Math.min(280, W() * 0.6);
+        const btnH = Math.max(48, Math.min(W(), H()) * 0.065);
+        const gap = 16;
+        const startY = H() * 0.38;
+        const labelSize = Math.max(16, btnH * 0.4);
+
+        difficultyBtnRects = [];
+
+        DIFFICULTY_KEYS.forEach((key, i) => {
+            const settings = DIFFICULTY_SETTINGS[key];
+            const x = W() / 2 - btnW / 2;
+            const y = startY + i * (btnH + gap);
+            const isSelected = i === selectedDifficulty;
+
+            difficultyBtnRects.push({ x, y, w: btnW, h: btnH, index: i });
+
+            // Button background
+            if (isSelected) {
+                ctx.shadowColor = COLORS.accent;
+                ctx.shadowBlur = 16;
+                const grad = ctx.createLinearGradient(x, y, x + btnW, y);
+                grad.addColorStop(0, 'rgba(167,139,250,0.25)');
+                grad.addColorStop(1, 'rgba(244,114,182,0.15)');
+                ctx.fillStyle = grad;
+                ctx.strokeStyle = COLORS.accent;
+                ctx.lineWidth = 2;
+            } else {
+                ctx.fillStyle = 'rgba(255,255,255,0.04)';
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 1;
+                ctx.shadowBlur = 0;
+            }
+            roundRect(ctx, x, y, btnW, btnH, 14, true);
+            roundRect(ctx, x, y, btnW, btnH, 14, false, true);
+            ctx.shadowBlur = 0;
+
+            // Label
+            ctx.font = `700 ${labelSize}px 'Pretendard Variable', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = isSelected ? COLORS.text : COLORS.textSecondary;
+            ctx.fillText(`${settings.emoji}  ${settings.label}`, W() / 2, y + btnH / 2);
+        });
+
+        // Hint
+        const hintSize = Math.max(10, titleSize * 0.32);
+        ctx.font = `600 ${hintSize}px 'Pretendard Variable', sans-serif`;
+        ctx.fillStyle = COLORS.textMuted;
+        const pulse = Math.sin(Date.now() * 0.003) * 0.2 + 0.8;
+        ctx.globalAlpha = pulse;
+        const isMobile = 'ontouchstart' in window;
+        ctx.fillText(isMobile ? '탭하여 선택' : '↑↓ 이동  ·  Enter 선택', W() / 2, startY + 3 * (btnH + gap) + 20);
+        ctx.globalAlpha = 1;
+    }
+
+    function getDifficultyClickIndex(px, py) {
+        for (const rect of difficultyBtnRects) {
+            if (px >= rect.x && px <= rect.x + rect.w && py >= rect.y && py <= rect.y + rect.h) {
+                return rect.index;
+            }
+        }
+        return -1;
+    }
+
     // ===== Drawing: Game Over Screen =====
     function drawOverScreen() {
         ctx.fillStyle = 'rgba(12,12,29,0.7)';
@@ -664,6 +754,9 @@
         if (state === 'START') {
             drawStartScreen();
             drawHomeBtn();
+        } else if (state === 'DIFFICULTY') {
+            drawDifficultyScreen();
+            drawHomeBtn();
         } else if (state === 'PLAY') {
             update(dt);
             drawBoard();
@@ -687,11 +780,33 @@
     const DAS_RATE = 0.05;
 
     document.addEventListener('keydown', (e) => {
+        // === DIFFICULTY screen input ===
+        if (state === 'DIFFICULTY') {
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedDifficulty = (selectedDifficulty + 2) % 3;
+                return;
+            }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedDifficulty = (selectedDifficulty + 1) % 3;
+                return;
+            }
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                initGame();
+                state = 'PLAY';
+                showTouchControls(true);
+                return;
+            }
+            return;
+        }
+
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             if (e.key === ' ' && state === 'PLAY' && clearingLines.length === 0) { hardDrop(); return; }
-            if (state === 'START') { initGame(); state = 'PLAY'; showTouchControls(true); return; }
-            if (state === 'OVER') { initGame(); state = 'PLAY'; showTouchControls(true); return; }
+            if (state === 'START') { state = 'DIFFICULTY'; return; }
+            if (state === 'OVER') { state = 'DIFFICULTY'; return; }
         }
 
         if (state !== 'PLAY') return;
@@ -779,24 +894,33 @@
     });
 
     // ===== Input: Canvas click (for start/restart) =====
-    canvas.addEventListener('click', (e) => {
-        if (isHomeClick(e.clientX, e.clientY)) {
+    function handleCanvasInteraction(px, py) {
+        if (isHomeClick(px, py)) {
             window.location.href = '../../index.html';
             return;
         }
-        if (state === 'START') { initGame(); state = 'PLAY'; showTouchControls(true); return; }
-        if (state === 'OVER') { initGame(); state = 'PLAY'; showTouchControls(true); return; }
+        if (state === 'START') { state = 'DIFFICULTY'; return; }
+        if (state === 'OVER') { state = 'DIFFICULTY'; return; }
+        if (state === 'DIFFICULTY') {
+            const idx = getDifficultyClickIndex(px, py);
+            if (idx >= 0) {
+                selectedDifficulty = idx;
+                initGame();
+                state = 'PLAY';
+                showTouchControls(true);
+            }
+            return;
+        }
+    }
+
+    canvas.addEventListener('click', (e) => {
+        handleCanvasInteraction(e.clientX, e.clientY);
     });
 
     canvas.addEventListener('touchstart', (e) => {
         e.preventDefault();
         const t = e.touches[0];
-        if (isHomeClick(t.clientX, t.clientY)) {
-            window.location.href = '../../index.html';
-            return;
-        }
-        if (state === 'START') { initGame(); state = 'PLAY'; showTouchControls(true); return; }
-        if (state === 'OVER') { initGame(); state = 'PLAY'; showTouchControls(true); return; }
+        handleCanvasInteraction(t.clientX, t.clientY);
     }, { passive: false });
 
     // Prevent scroll

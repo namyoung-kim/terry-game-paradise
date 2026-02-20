@@ -4,18 +4,34 @@
 .touch-controls {
     position: fixed;
     bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
     z-index: 30;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 20px;
     pointer-events: none;
 }
 
 .touch-controls.hidden {
     display: none;
+}
+
+.touch-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.touch-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto;
 }
 
 .touch-row {
@@ -52,6 +68,9 @@
 }
 
 .rotate-btn {
+    width: 64px;
+    height: 64px;
+    font-size: 26px;
     border-color: rgba(167, 139, 250, 0.3);
     color: #a78bfa;
 }
