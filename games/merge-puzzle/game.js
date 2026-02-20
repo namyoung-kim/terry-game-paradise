@@ -630,7 +630,7 @@
         let count = 0;
         for (let i = 0; i < TOTAL_CELLS; i++) {
             const cell = grid[i];
-            if (isItem(cell) && cell.chain === chainIdx && cell.level >= level) {
+            if (isItem(cell) && cell.chain === chainIdx && cell.level === level) {
                 count++;
             }
         }
@@ -642,19 +642,11 @@
         const order = orders[orderIdx];
         if (order.completed) return;
 
-        // 보드에서 아이템 삭제 (가장 낮은 좌표 우선)
+        // 보드에서 정확히 일치하는 아이템만 삭제 (좌측 상단부터)
         order.goals.forEach(goal => {
             let remaining = goal.count;
-            // 정확히 해당 레벨인 아이템 우선
             for (let i = 0; i < TOTAL_CELLS && remaining > 0; i++) {
                 if (isItem(grid[i]) && grid[i].chain === goal.chain && grid[i].level === goal.level) {
-                    grid[i] = null;
-                    remaining--;
-                }
-            }
-            // 부족하면 더 높은 레벨
-            for (let i = 0; i < TOTAL_CELLS && remaining > 0; i++) {
-                if (isItem(grid[i]) && grid[i].chain === goal.chain && grid[i].level > goal.level) {
                     grid[i] = null;
                     remaining--;
                 }
