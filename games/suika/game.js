@@ -88,7 +88,7 @@
 
     // ===== 물리 상수 =====
     const PHYSICS = {
-        gravity: 800,
+        gravity: 1800,
         friction: 0.3,         // 마찰 계수
         restitution: 0.2,      // 반발 계수 (낮을수록 적게 튕김)
         damping: 0.98,         // 속도 감쇠
@@ -516,8 +516,7 @@
 
         // 다음 과일 이모지
         const fruit = FRUITS[nextFruit];
-        const r = boxSize * 0.28;
-        const emojiSize = r * 1.4;
+        const emojiSize = boxSize * 0.55;
         ctx.font = `${emojiSize}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
