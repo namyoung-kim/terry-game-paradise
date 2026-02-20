@@ -1,4 +1,4 @@
-/* ===== 과일 매치 — Game Styles ===== */
+/* ===== 보석 매치 — Game Styles ===== */
 html,
 body {
     overflow: hidden;
@@ -208,6 +208,22 @@ body {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     position: relative;
+    overflow: hidden;
+}
+
+/* 보드 플래시 효과 */
+.board.board-flash {
+    animation: boardFlashAnim 0.4s ease-out;
+}
+
+@keyframes boardFlashAnim {
+    0% {
+        box-shadow: inset 0 0 60px rgba(167, 139, 250, 0.5), 0 0 40px rgba(167, 139, 250, 0.3);
+    }
+
+    100% {
+        box-shadow: none;
+    }
 }
 
 /* 셀 */
@@ -220,7 +236,7 @@ body {
     cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s;
     aspect-ratio: 1;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .cell:active {
@@ -231,6 +247,19 @@ body {
     box-shadow: 0 0 0 2px var(--accent-purple), 0 0 12px rgba(167, 139, 250, 0.4);
     transform: scale(1.08);
     z-index: 5;
+    animation: selectedPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes selectedPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 2px var(--accent-purple), 0 0 12px rgba(167, 139, 250, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 3px var(--accent-purple), 0 0 20px rgba(167, 139, 250, 0.6);
+    }
 }
 
 .cell.hint {
@@ -260,6 +289,7 @@ body {
     font-size: clamp(1rem, 4.5vw, 1.6rem);
     transition: transform 0.2s cubic-bezier(.34, 1.56, .64, 1), opacity 0.2s;
     position: relative;
+    will-change: transform, opacity;
 }
 
 .gem::after {
@@ -285,6 +315,7 @@ body {
     font-size: 0.6em;
     top: -2px;
     right: -2px;
+    animation: specialBadgePulse 1.5s ease-in-out infinite;
 }
 
 .gem.special-bomb::before {
@@ -293,11 +324,25 @@ body {
     font-size: 0.6em;
     top: -2px;
     right: -2px;
+    animation: specialBadgePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes specialBadgePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
 }
 
 .gem.special-rainbow {
     background: linear-gradient(135deg, #e74c3c, #f39c12, #27ae60, #3498db, #9b59b6) !important;
     animation: rainbowShine 2s linear infinite;
+    box-shadow: 0 0 12px rgba(167, 139, 250, 0.5);
 }
 
 .gem.special-rainbow::after {
@@ -306,23 +351,33 @@ body {
 
 @keyframes rainbowShine {
     0% {
-        filter: hue-rotate(0deg);
+        filter: hue-rotate(0deg) brightness(1);
+    }
+
+    50% {
+        filter: hue-rotate(180deg) brightness(1.2);
     }
 
     100% {
-        filter: hue-rotate(360deg);
+        filter: hue-rotate(360deg) brightness(1);
     }
 }
 
-/* 매칭/제거 애니메이션 */
+/* ===== 매칭/제거 애니메이션 ===== */
 @keyframes matchPop {
     0% {
         transform: scale(1);
         opacity: 1;
     }
 
-    50% {
-        transform: scale(1.3);
+    30% {
+        transform: scale(1.4);
+        opacity: 1;
+    }
+
+    60% {
+        transform: scale(1.4);
+        opacity: 0.7;
     }
 
     100% {
@@ -332,15 +387,49 @@ body {
 }
 
 .gem.matched {
-    animation: matchPop 0.3s ease-out forwards;
+    animation: matchPop 0.35s cubic-bezier(.2, .8, .2, 1) forwards;
     pointer-events: none;
 }
 
-/* 낙하 애니메이션 */
+/* ===== 파티클 ===== */
+.particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    z-index: 20;
+    pointer-events: none;
+    animation: particleFly 0.45s cubic-bezier(.2, .8, .3, 1) forwards;
+}
+
+@keyframes particleFly {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* ===== 낙하 애니메이션 ===== */
 @keyframes fallIn {
     0% {
-        transform: translateY(-100%);
-        opacity: 0;
+        transform: translateY(-120%);
+        opacity: 0.3;
+    }
+
+    60% {
+        transform: translateY(5%);
+        opacity: 1;
+    }
+
+    80% {
+        transform: translateY(-3%);
     }
 
     100% {
@@ -350,7 +439,103 @@ body {
 }
 
 .gem.falling {
-    animation: fallIn 0.3s cubic-bezier(.34, 1.56, .64, 1);
+    animation: fallIn 0.35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* ===== 특수 아이템 이펙트 ===== */
+.special-effect {
+    position: absolute;
+    z-index: 30;
+    pointer-events: none;
+}
+
+/* 줄무늬 가로 이펙트 */
+.effect-stripe-h {
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.9), transparent);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+    animation: stripeFlash 0.5s ease-out forwards;
+    transform: translateY(-50%);
+}
+
+/* 줄무늬 세로 이펙트 */
+.effect-stripe-v {
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, transparent, rgba(251, 191, 36, 0.9), transparent);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+    animation: stripeFlash 0.5s ease-out forwards;
+    transform: translateX(-50%);
+}
+
+@keyframes stripeFlash {
+    0% {
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* 폭탄 이펙트 */
+.effect-bomb {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.6), rgba(244, 114, 182, 0.4), transparent);
+    transform: translate(-50%, -50%) scale(0);
+    animation: bombBlast 0.5s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+
+@keyframes bombBlast {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+    }
+}
+
+/* 무지개 이펙트 */
+.effect-rainbow {
+    inset: 0;
+    background: linear-gradient(135deg,
+            rgba(231, 76, 60, 0.3),
+            rgba(243, 156, 18, 0.3),
+            rgba(39, 174, 96, 0.3),
+            rgba(52, 152, 219, 0.3),
+            rgba(155, 89, 182, 0.3));
+    animation: rainbowFlash 0.6s ease-out forwards;
+}
+
+@keyframes rainbowFlash {
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 
 /* 스왑 실패 */

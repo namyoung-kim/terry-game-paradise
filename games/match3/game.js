@@ -1,4 +1,4 @@
-// ===== 과일 매치 (Match-3 Puzzle) =====
+// ===== 보석 매치 (Match-3 Puzzle) =====
 (() => {
     'use strict';
 
@@ -23,17 +23,17 @@
         const colors = [0, 1, 2, 3, 4, 5];
 
         function randPositions(count, exclude) {
-            const ex = new Set((exclude || []).map(p => `${p[0]},${p[1]}`));
             const positions = [];
-            const all = [];
-            for (let r = 0; r < ROWS; r++)
-                for (let c = 0; c < COLS; c++)
-                    if (!ex.has(`${r},${c}`)) all.push([r, c]);
-            for (let i = all.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [all[i], all[j]] = [all[j], all[i]];
+            const excludeSet = new Set(exclude ? exclude.map(e => `${e.r},${e.c}`) : []);
+            while (positions.length < count) {
+                const r = Math.floor(Math.random() * ROWS);
+                const c = Math.floor(Math.random() * COLS);
+                const key = `${r},${c}`;
+                if (!excludeSet.has(key) && !positions.some(p => p.r === r && p.c === c)) {
+                    positions.push({ r, c });
+                }
             }
-            return all.slice(0, Math.min(count, all.length));
+            return positions;
         }
 
         // 초급 1~5 (장애물 없음)
@@ -48,10 +48,8 @@
                     { type: colors[i % 6], count: 15 + i * 2 },
                     { type: colors[(i + 2) % 6], count: 15 + i * 2 },
                 ],
-                obstacleGen: () => {
-                    const obs = [];
-                    randPositions(iceCount).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.ICE1 }));
-                    return obs;
+                obstacleGen() {
+                    return randPositions(iceCount, []).map(p => ({ ...p, type: OBS.ICE1 }));
                 }
             });
         }
@@ -64,12 +62,10 @@
                     { type: colors[i % 6], count: 20 + i * 2 },
                     { type: 'score', count: 2000 + i * 500 },
                 ],
-                obstacleGen: () => {
-                    const obs = [];
-                    const used = [];
-                    randPositions(iceCount).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.ICE2 }); used.push(p); });
-                    randPositions(boxCount, used).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.BOX }));
-                    return obs;
+                obstacleGen() {
+                    const ices = randPositions(iceCount, []).map(p => ({ ...p, type: OBS.ICE2 }));
+                    const boxes = randPositions(boxCount, ices).map(p => ({ ...p, type: OBS.BOX }));
+                    return [...ices, ...boxes];
                 }
             });
         }
@@ -83,12 +79,10 @@
                     { type: colors[(i + 1) % 6], count: 18 + i * 2 },
                     { type: colors[(i + 3) % 6], count: 15 + i * 2 },
                 ],
-                obstacleGen: () => {
-                    const obs = [];
-                    const used = [];
-                    randPositions(chainCount).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.CHAIN }); used.push(p); });
-                    randPositions(iceCount, used).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.ICE1 }));
-                    return obs;
+                obstacleGen() {
+                    const chains = randPositions(chainCount, []).map(p => ({ ...p, type: OBS.CHAIN }));
+                    const ices = randPositions(iceCount, chains).map(p => ({ ...p, type: OBS.ICE1 }));
+                    return [...chains, ...ices];
                 }
             });
         }
@@ -102,13 +96,11 @@
                     { type: colors[i % 6], count: 25 + i * 3 },
                     { type: colors[(i + 2) % 6], count: 25 + i * 3 },
                 ],
-                obstacleGen: () => {
-                    const obs = [];
-                    const used = [];
-                    randPositions(stoneCount).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.STONE }); used.push(p); });
-                    randPositions(chainCount, used).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.CHAIN }); used.push(p); });
-                    randPositions(iceCount, used).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.ICE2 }));
-                    return obs;
+                obstacleGen() {
+                    const stones = randPositions(stoneCount, []).map(p => ({ ...p, type: OBS.STONE }));
+                    const chains = randPositions(chainCount, stones).map(p => ({ ...p, type: OBS.CHAIN }));
+                    const ices = randPositions(iceCount, [...stones, ...chains]).map(p => ({ ...p, type: OBS.ICE2 }));
+                    return [...stones, ...chains, ...ices];
                 }
             });
         }
@@ -123,13 +115,11 @@
                     { type: colors[(i + 1) % 6], count: 25 + i * 3 },
                     { type: 'score', count: 5000 + i * 1000 },
                 ],
-                obstacleGen: () => {
-                    const obs = [];
-                    const used = [];
-                    randPositions(stoneCount).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.STONE }); used.push(p); });
-                    randPositions(boxCount, used).forEach(p => { obs.push({ r: p[0], c: p[1], type: OBS.BOX }); used.push(p); });
-                    randPositions(chainCount, used).forEach(p => obs.push({ r: p[0], c: p[1], type: OBS.CHAIN }));
-                    return obs;
+                obstacleGen() {
+                    const stones = randPositions(stoneCount, []).map(p => ({ ...p, type: OBS.STONE }));
+                    const boxes = randPositions(boxCount, stones).map(p => ({ ...p, type: OBS.BOX }));
+                    const chains = randPositions(chainCount, [...stones, ...boxes]).map(p => ({ ...p, type: OBS.CHAIN }));
+                    return [...stones, ...boxes, ...chains];
                 }
             });
         }
@@ -187,10 +177,8 @@
     }
 
     function wouldMatch(r, c, type) {
-        // 가로 체크
         if (c >= 2 && grid[r][c - 1] && grid[r][c - 2] &&
             grid[r][c - 1].type === type && grid[r][c - 2].type === type) return true;
-        // 세로 체크
         if (r >= 2 && grid[r - 1] && grid[r - 2] &&
             grid[r - 1][c] && grid[r - 2][c] &&
             grid[r - 1][c].type === type && grid[r - 2][c].type === type) return true;
@@ -241,8 +229,10 @@
             gem.textContent = '🌈';
         } else {
             const gt = GEM_TYPES[data.type];
-            gem.style.background = gt.color;
-            gem.textContent = gt.emoji;
+            if (gt) {
+                gem.style.background = gt.color;
+                gem.textContent = gt.emoji;
+            }
 
             if (data.special === SPECIAL.STRIPE_H || data.special === SPECIAL.STRIPE_V) {
                 gem.classList.add('special-stripe');
@@ -258,9 +248,24 @@
         const cell = boardEl.children[idx];
         if (!cell) return;
         cell.innerHTML = '';
+        cell.className = 'cell';
+        cell.dataset.r = r;
+        cell.dataset.c = c;
         if (grid[r][c]) {
-            const gem = createGemEl(grid[r][c]);
-            cell.appendChild(gem);
+            const data = grid[r][c];
+            if (data.obs === OBS.STONE) {
+                cell.classList.add('obs-stone');
+                cell.innerHTML = '<div class="gem obs-gem">🪨</div>';
+            } else if (data.obs === OBS.BOX) {
+                cell.classList.add('obs-box');
+                cell.innerHTML = '<div class="gem obs-gem">📦</div>';
+            } else {
+                const gem = createGemEl(data);
+                cell.appendChild(gem);
+                if (data.obs === OBS.ICE1) cell.classList.add('obs-ice1');
+                if (data.obs === OBS.ICE2) cell.classList.add('obs-ice2');
+                if (data.obs === OBS.CHAIN) cell.classList.add('obs-chain');
+            }
         }
     }
 
@@ -302,7 +307,7 @@
         renderBoard();
         renderHUD();
 
-        // 초기 보드에서 가능한 스왕이 없으면 셔플
+        // 초기 보드에서 가능한 스왑이 없으면 셔플
         setTimeout(() => checkAndShuffle(), 300);
     }
 
@@ -312,9 +317,7 @@
     function onCellClick(r, c) {
         if (animating) return;
         if (!grid[r][c]) return;
-        // 돌벽/상자는 클릭 불가
         if (grid[r][c].obs === OBS.STONE || grid[r][c].obs === OBS.BOX) return;
-        // 체인은 스왑 불가
         if (grid[r][c].obs === OBS.CHAIN) return;
 
         if (!selected) {
@@ -392,27 +395,227 @@
         document.querySelectorAll('.cell.selected').forEach(el => el.classList.remove('selected'));
     }
 
+    // ===== 스왑 애니메이션 헬퍼 =====
+    function getCellEl(r, c) {
+        return boardEl.children[r * COLS + c];
+    }
+
+    function getGemEl(r, c) {
+        const cell = getCellEl(r, c);
+        return cell ? cell.querySelector('.gem') : null;
+    }
+
+    async function animateSwap(r1, c1, r2, c2) {
+        const cell1 = getCellEl(r1, c1);
+        const cell2 = getCellEl(r2, c2);
+        if (!cell1 || !cell2) return;
+
+        const gem1 = cell1.querySelector('.gem');
+        const gem2 = cell2.querySelector('.gem');
+        if (!gem1 || !gem2) return;
+
+        const dr = r2 - r1;
+        const dc = c2 - c1;
+
+        // 셀 하나 크기 계산
+        const cellRect = cell1.getBoundingClientRect();
+        const cellSize = cellRect.width + 3; // gap 포함
+
+        const tx = dc * cellSize;
+        const ty = dr * cellSize;
+
+        gem1.style.transition = 'transform 0.25s cubic-bezier(.34,1.56,.64,1)';
+        gem2.style.transition = 'transform 0.25s cubic-bezier(.34,1.56,.64,1)';
+        gem1.style.transform = `translate(${tx}px, ${ty}px)`;
+        gem2.style.transform = `translate(${-tx}px, ${-ty}px)`;
+        gem1.style.zIndex = '10';
+        gem2.style.zIndex = '10';
+
+        await delay(260);
+
+        gem1.style.transition = '';
+        gem1.style.transform = '';
+        gem1.style.zIndex = '';
+        gem2.style.transition = '';
+        gem2.style.transform = '';
+        gem2.style.zIndex = '';
+    }
+
+    // ===== 매칭 제거 애니메이션 =====
+    async function animateRemoval(cellKeys) {
+        cellKeys.forEach(key => {
+            const [r, c] = key.split(',').map(Number);
+            const gem = getGemEl(r, c);
+            if (gem) {
+                gem.classList.add('matched');
+                // 파티클 스폰
+                spawnDomParticles(r, c);
+            }
+        });
+        await delay(350);
+    }
+
+    // ===== DOM 파티클 효과 =====
+    function spawnDomParticles(r, c) {
+        const cell = getCellEl(r, c);
+        if (!cell) return;
+        const data = grid[r][c];
+        const color = data && data.type >= 0 && GEM_TYPES[data.type] ? GEM_TYPES[data.type].color : '#a78bfa';
+
+        for (let i = 0; i < 6; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const angle = (Math.PI * 2 / 6) * i;
+            const dist = 20 + Math.random() * 25;
+            const tx = Math.cos(angle) * dist;
+            const ty = Math.sin(angle) * dist;
+            p.style.setProperty('--tx', `${tx}px`);
+            p.style.setProperty('--ty', `${ty}px`);
+            p.style.background = color;
+            cell.appendChild(p);
+            setTimeout(() => p.remove(), 500);
+        }
+    }
+
+    // ===== 낙하 애니메이션 =====
+    function animateFalling() {
+        for (let c = 0; c < COLS; c++) {
+            for (let r = 0; r < ROWS; r++) {
+                const gem = getGemEl(r, c);
+                if (gem && !gem.classList.contains('matched')) {
+                    gem.classList.add('falling');
+                    gem.addEventListener('animationend', function handler() {
+                        gem.classList.remove('falling');
+                        gem.removeEventListener('animationend', handler);
+                    });
+                }
+            }
+        }
+    }
+
+    // ===== 특수 아이템 이펙트 =====
+    function showSpecialEffect(type, r, c) {
+        const effectEl = document.createElement('div');
+        effectEl.className = 'special-effect';
+
+        if (type === 'stripe_h') {
+            effectEl.classList.add('effect-stripe-h');
+            effectEl.style.top = `${(r / ROWS) * 100}%`;
+        } else if (type === 'stripe_v') {
+            effectEl.classList.add('effect-stripe-v');
+            effectEl.style.left = `${(c / COLS) * 100}%`;
+        } else if (type === 'bomb') {
+            effectEl.classList.add('effect-bomb');
+            const cell = getCellEl(r, c);
+            if (cell) {
+                const rect = cell.getBoundingClientRect();
+                const boardRect = boardEl.getBoundingClientRect();
+                effectEl.style.left = `${rect.left - boardRect.left + rect.width / 2}px`;
+                effectEl.style.top = `${rect.top - boardRect.top + rect.height / 2}px`;
+            }
+        } else if (type === 'rainbow') {
+            effectEl.classList.add('effect-rainbow');
+        }
+
+        boardEl.appendChild(effectEl);
+        setTimeout(() => effectEl.remove(), 600);
+    }
+
+    // ===== 보드 플래시 효과 =====
+    function flashBoard() {
+        boardEl.classList.add('board-flash');
+        setTimeout(() => boardEl.classList.remove('board-flash'), 400);
+    }
+
     // ===== 스왑 =====
     async function trySwap(r1, c1, r2, c2) {
         if (animating) return;
         animating = true;
 
-        // 특수+특수 조합 체크
         const a = grid[r1][c1], b = grid[r2][c2];
-        if (a && b && a.special !== SPECIAL.NONE && b.special !== SPECIAL.NONE) {
-            swap(r1, c1, r2, c2);
-            moves--;
-            await handleSpecialCombo(r1, c1, r2, c2, a, b);
-            renderBoard();
-            renderHUD();
-            comboCount = 0;
-            await cascadeLoop();
-            checkEndCondition();
-            animating = false;
-            return;
+
+        // ===== 무지개 + 일반 블록 (또는 무지개 + 특수) 처리 =====
+        if (a && b) {
+            const aIsRainbow = a.special === SPECIAL.RAINBOW;
+            const bIsRainbow = b.special === SPECIAL.RAINBOW;
+
+            // 양쪽 모두 특수 아이템 (둘 다 특수)
+            if (a.special !== SPECIAL.NONE && b.special !== SPECIAL.NONE) {
+                await animateSwap(r1, c1, r2, c2);
+                swap(r1, c1, r2, c2);
+                moves--;
+                renderBoard();
+                renderHUD();
+
+                // 특수+특수 조합 이펙트
+                flashBoard();
+                await handleSpecialCombo(r1, c1, r2, c2, grid[r1][c1], grid[r2][c2]);
+                renderBoard();
+                renderHUD();
+                comboCount = 0;
+                await cascadeLoop();
+                checkEndCondition();
+                animating = false;
+                return;
+            }
+
+            // 한쪽만 무지개 + 다른쪽 일반 블록
+            if (aIsRainbow || bIsRainbow) {
+                const rainbowR = aIsRainbow ? r1 : r2;
+                const rainbowC = aIsRainbow ? c1 : c2;
+                const otherR = aIsRainbow ? r2 : r1;
+                const otherC = aIsRainbow ? c2 : c1;
+                const targetType = grid[otherR][otherC].type;
+
+                await animateSwap(r1, c1, r2, c2);
+                swap(r1, c1, r2, c2);
+                moves--;
+
+                // 무지개 이펙트 표시
+                showSpecialEffect('rainbow');
+                flashBoard();
+
+                // 해당 타입 전체 제거 + 무지개 자신도 제거
+                const toRemove = new Set();
+                toRemove.add(`${rainbowR},${rainbowC}`);
+                for (let rr = 0; rr < ROWS; rr++) {
+                    for (let cc = 0; cc < COLS; cc++) {
+                        if (grid[rr][cc] && grid[rr][cc].type === targetType) {
+                            toRemove.add(`${rr},${cc}`);
+                        }
+                    }
+                }
+
+                // 제거 애니메이션
+                renderBoard();
+                await animateRemoval(toRemove);
+
+                // 점수 및 목표 계산
+                comboCount = 1;
+                toRemove.forEach(key => {
+                    const [rr, cc] = key.split(',').map(Number);
+                    if (grid[rr][cc]) {
+                        if (grid[rr][cc].type >= 0) {
+                            const gKey = `color_${grid[rr][cc].type}`;
+                            goalProgress[gKey] = (goalProgress[gKey] || 0) + 1;
+                        }
+                        score += 50;
+                        grid[rr][cc] = null;
+                    }
+                });
+                goalProgress['score'] = score;
+
+                renderBoard();
+                renderHUD();
+                await cascadeLoop();
+                checkEndCondition();
+                animating = false;
+                return;
+            }
         }
 
-        // 일반 스왑
+        // ===== 일반 스왑 =====
+        await animateSwap(r1, c1, r2, c2);
         swap(r1, c1, r2, c2);
         const matches = findAllMatches();
 
@@ -427,6 +630,9 @@
         } else {
             // 되돌리기
             swap(r1, c1, r2, c2);
+            renderBoard();
+            await animateSwap(r1, c1, r2, c2);
+            // 실제 DOM은 이미 원래 상태이므로 다시 렌더
             renderBoard();
             shakeCell(r1, c1);
             shakeCell(r2, c2);
@@ -452,13 +658,13 @@
     // ===== 매칭 탐지 =====
     function findAllMatches() {
         const matched = new Set();
-        const specials = []; // { r, c, special }
+        const specials = [];
 
         // 가로 스캔
         for (let r = 0; r < ROWS; r++) {
             let c = 0;
             while (c < COLS) {
-                if (!grid[r][c]) { c++; continue; }
+                if (!grid[r][c] || grid[r][c].type < 0) { c++; continue; }
                 const type = grid[r][c].type;
                 let end = c + 1;
                 while (end < COLS && grid[r][end] && grid[r][end].type === type) end++;
@@ -480,7 +686,7 @@
         for (let c = 0; c < COLS; c++) {
             let r = 0;
             while (r < ROWS) {
-                if (!grid[r][c]) { r++; continue; }
+                if (!grid[r][c] || grid[r][c].type < 0) { r++; continue; }
                 const type = grid[r][c].type;
                 let end = r + 1;
                 while (end < ROWS && grid[end][c] && grid[end][c].type === type) end++;
@@ -501,11 +707,10 @@
         // L/T형 탐지 (교차 지점)
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
-                if (!grid[r][c]) continue;
+                if (!grid[r][c] || grid[r][c].type < 0) continue;
                 const key = `${r},${c}`;
                 if (!matched.has(key)) continue;
 
-                // 이 셀이 가로+세로 모두 3개 이상의 일부인지 확인
                 const type = grid[r][c].type;
                 let hCount = 1, vCount = 1;
                 let l = c - 1; while (l >= 0 && grid[r][l] && grid[r][l].type === type) { l--; hCount++; }
@@ -514,7 +719,6 @@
                 let d = r + 1; while (d < ROWS && grid[d][c] && grid[d][c].type === type) { d++; vCount++; }
 
                 if (hCount >= 3 && vCount >= 3) {
-                    // L/T형 → 폭탄
                     specials.push({ r, c, special: SPECIAL.BOMB, type });
                 }
             }
@@ -539,13 +743,18 @@
         // 콤보 표시
         if (comboCount >= 2) showCombo(comboCount);
 
+        // 제거 애니메이션 실행
+        await animateRemoval(cells);
+
         // 목표 카운트
         cells.forEach(key => {
             const [r, c] = key.split(',').map(Number);
             if (grid[r][c]) {
                 const type = grid[r][c].type;
-                const gKey = `color_${type}`;
-                goalProgress[gKey] = (goalProgress[gKey] || 0) + 1;
+                if (type >= 0) {
+                    const gKey = `color_${type}`;
+                    goalProgress[gKey] = (goalProgress[gKey] || 0) + 1;
+                }
             }
         });
         goalProgress['score'] = score;
@@ -570,15 +779,15 @@
 
         // 특수 아이템 생성
         specials.forEach(s => {
-            if (s.special === SPECIAL.RAINBOW) {
-                grid[s.r][s.c] = { type: s.type, special: SPECIAL.RAINBOW, obs: OBS.NONE };
-            } else {
-                grid[s.r][s.c] = { type: s.type, special: s.special, obs: OBS.NONE };
-            }
+            grid[s.r][s.c] = { type: s.type, special: s.special, obs: OBS.NONE };
         });
 
-        // 특수 아이템 발동
+        // 특수 아이템 발동 이펙트
         for (const sa of specialActivations) {
+            if (sa.special === SPECIAL.STRIPE_H) showSpecialEffect('stripe_h', sa.r, sa.c);
+            else if (sa.special === SPECIAL.STRIPE_V) showSpecialEffect('stripe_v', sa.r, sa.c);
+            else if (sa.special === SPECIAL.BOMB) showSpecialEffect('bomb', sa.r, sa.c);
+            else if (sa.special === SPECIAL.RAINBOW) showSpecialEffect('rainbow', sa.r, sa.c);
             await activateSpecial(sa.r, sa.c, sa.special, sa.type);
         }
 
@@ -586,7 +795,6 @@
         const processedObs = new Set();
         cells.forEach(key => {
             const [r, c] = key.split(',').map(Number);
-            // 상하좌우 인접 셈 체크
             const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
             dirs.forEach(([dr, dc]) => {
                 const nr = r + dr, nc = c + dc;
@@ -615,7 +823,7 @@
 
         renderBoard();
         renderHUD();
-        await delay(200);
+        await delay(150);
     }
 
     // ===== 특수 아이템 발동 =====
@@ -651,11 +859,18 @@
                 break;
         }
 
+        // 제거 애니메이션
+        if (toRemove.size > 0) {
+            await animateRemoval(toRemove);
+        }
+
         toRemove.forEach(key => {
             const [rr, cc] = key.split(',').map(Number);
             if (grid[rr][cc]) {
-                const gKey = `color_${grid[rr][cc].type}`;
-                goalProgress[gKey] = (goalProgress[gKey] || 0) + 1;
+                if (grid[rr][cc].type >= 0) {
+                    const gKey = `color_${grid[rr][cc].type}`;
+                    goalProgress[gKey] = (goalProgress[gKey] || 0) + 1;
+                }
                 score += 30;
                 grid[rr][cc] = null;
             }
@@ -670,24 +885,23 @@
 
         if (specials[0] === SPECIAL.RAINBOW && specials[1] === SPECIAL.RAINBOW) {
             // 🌈+🌈 = 보드 전체
+            showSpecialEffect('rainbow');
             for (let r = 0; r < ROWS; r++)
                 for (let c = 0; c < COLS; c++) toRemove.add(`${r},${c}`);
         } else if (specials.includes(SPECIAL.RAINBOW)) {
             const other = a.special === SPECIAL.RAINBOW ? b : a;
             const rainbowTarget = other.type;
+            showSpecialEffect('rainbow');
             if (other.special === SPECIAL.STRIPE_H || other.special === SPECIAL.STRIPE_V) {
-                // 🔥+🌈 = 한 종류 모두 줄무늬로 → 폭발
                 for (let r = 0; r < ROWS; r++) {
                     for (let c = 0; c < COLS; c++) {
                         if (grid[r][c] && grid[r][c].type === rainbowTarget) {
-                            // 줄 제거
                             for (let cc = 0; cc < COLS; cc++) toRemove.add(`${r},${cc}`);
                             for (let rr = 0; rr < ROWS; rr++) toRemove.add(`${rr},${c}`);
                         }
                     }
                 }
             } else if (other.special === SPECIAL.BOMB) {
-                // 💣+🌈 = 한 종류 모두 폭탄 → 폭발
                 for (let r = 0; r < ROWS; r++) {
                     for (let c = 0; c < COLS; c++) {
                         if (grid[r][c] && grid[r][c].type === rainbowTarget) {
@@ -705,6 +919,7 @@
             }
         } else if (specials[0] === SPECIAL.BOMB && specials[1] === SPECIAL.BOMB) {
             // 💣+💣 = 5×5
+            showSpecialEffect('bomb', Math.floor((r1 + r2) / 2), Math.floor((c1 + c2) / 2));
             const cr = Math.floor((r1 + r2) / 2), cc = Math.floor((c1 + c2) / 2);
             for (let dr = -2; dr <= 2; dr++) {
                 for (let dc = -2; dc <= 2; dc++) {
@@ -718,26 +933,37 @@
             specials[1] === SPECIAL.BOMB) {
             // 🔥+💣 = 3줄
             const cr = Math.floor((r1 + r2) / 2), cc = Math.floor((c1 + c2) / 2);
+            showSpecialEffect('stripe_h', cr, cc);
+            showSpecialEffect('stripe_v', cr, cc);
             for (let d = -1; d <= 1; d++) {
                 for (let i = 0; i < COLS; i++) toRemove.add(`${cr + d},${i}`);
                 for (let i = 0; i < ROWS; i++) toRemove.add(`${i},${cc + d}`);
             }
         } else {
             // 🔥+🔥 = 십자
+            showSpecialEffect('stripe_h', r1, c1);
+            showSpecialEffect('stripe_v', r1, c1);
             for (let i = 0; i < COLS; i++) toRemove.add(`${r1},${i}`);
             for (let i = 0; i < ROWS; i++) toRemove.add(`${i},${c1}`);
             for (let i = 0; i < COLS; i++) toRemove.add(`${r2},${i}`);
             for (let i = 0; i < ROWS; i++) toRemove.add(`${i},${c2}`);
         }
 
+        // 제거 애니메이션
+        if (toRemove.size > 0) {
+            renderBoard();
+            await animateRemoval(toRemove);
+        }
+
         // 제거
         toRemove.forEach(key => {
             const [r, c] = key.split(',').map(Number);
             if (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c]) {
-                // 돌벽은 보호
                 if (grid[r][c].obs === OBS.STONE) return;
-                const gKey = `color_${grid[r][c].type}`;
-                goalProgress[gKey] = (goalProgress[gKey] || 0) + 1;
+                if (grid[r][c].type >= 0) {
+                    const gKey = `color_${grid[r][c].type}`;
+                    goalProgress[gKey] = (goalProgress[gKey] || 0) + 1;
+                }
                 score += 30;
                 grid[r][c] = null;
             }
@@ -752,7 +978,6 @@
             let writeRow = ROWS - 1;
             for (let r = ROWS - 1; r >= 0; r--) {
                 if (grid[r][c]) {
-                    // 돌벽/상자는 고정 (낙하하지 않음)
                     if (grid[r][c].obs === OBS.STONE || grid[r][c].obs === OBS.BOX) {
                         writeRow = r - 1;
                         continue;
@@ -765,7 +990,6 @@
                     writeRow--;
                 }
             }
-            // 빈 칸 채우기 (돌벽/상자 위치는 스킵)
             for (let r = writeRow; r >= 0; r--) {
                 if (grid[r][c] && (grid[r][c].obs === OBS.STONE || grid[r][c].obs === OBS.BOX)) continue;
                 grid[r][c] = { type: randType(), special: SPECIAL.NONE, obs: OBS.NONE };
@@ -781,7 +1005,8 @@
         while (cascading) {
             applyGravity();
             renderBoard();
-            await delay(250);
+            animateFalling();
+            await delay(300);
 
             const matches = findAllMatches();
             if (matches && matches.cells && matches.cells.size > 0) {
@@ -792,26 +1017,22 @@
         }
         comboCount = 0;
 
-        // 셔플 체크
         await checkAndShuffle();
     }
 
-    // ===== 가능한 스왕 체크 =====
+    // ===== 가능한 스왑 체크 =====
     function hasValidMoves() {
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 if (!grid[r][c]) continue;
-                // 특수 아이템이 있으면 항상 스왕 가능
                 if (grid[r][c].special !== SPECIAL.NONE) return true;
 
-                // 오른쪽 스왕
                 if (c + 1 < COLS) {
                     swap(r, c, r, c + 1);
                     const m = findAllMatches();
                     swap(r, c, r, c + 1);
                     if (m && m.cells && m.cells.size > 0) return true;
                 }
-                // 아래쪽 스왕
                 if (r + 1 < ROWS) {
                     swap(r, c, r + 1, c);
                     const m = findAllMatches();
@@ -837,14 +1058,12 @@
     }
 
     function shuffleGrid() {
-        // 모든 아이템을 모아서 랑덤 재배치
         const items = [];
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 if (grid[r][c]) items.push(grid[r][c]);
             }
         }
-        // Fisher-Yates 셔플
         for (let i = items.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [items[i], items[j]] = [items[j], items[i]];
@@ -858,7 +1077,7 @@
     }
 
     function showShuffleMessage() {
-        comboText.textContent = '🔀 보드를 섹는 중...';
+        comboText.textContent = '🔀 보드를 섞는 중...';
         comboDisplay.classList.remove('hidden');
         setTimeout(() => comboDisplay.classList.add('hidden'), 700);
     }

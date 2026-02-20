@@ -95,7 +95,7 @@ const GAMES = [
     },
     {
         id: 'match3',
-        name: '과일 매치',
+        name: '보석 매치',
         emoji: '💎',
         description: '보석 3개를 맞춰 제거하자!',
         path: 'games/match3/index.html'

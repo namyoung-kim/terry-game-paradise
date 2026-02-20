@@ -62,6 +62,17 @@
     </div>
 
     <script src="game.js"></script>
+<script>
+const GAME_HELP = {
+    title: "📖 2048 게임 방법",
+    sections: [
+        { heading: "🎯 목표", text: "숫자 타일을 합쳐 <strong>2048</strong>을 만드세요!" },
+        { heading: "👆 조작법", list: ["👉 <strong>상하좌우</strong> 방향키 또는 스와이프로 타일 이동", "👉 같은 숫자가 만나면 <strong>합쳐져서 2배</strong>가 됩니다", "👉 합쳐진 타일은 한 턴에 1번만 합성됩니다"] },
+        { heading: "💡 팁", list: ["큰 수를 한쪽 구석에 모으세요", "최대한 한 방향으로 밀어붙이세요", "빈 칸이 없으면 게임 오버!"] }
+    ]
+};
+</script>
+<script src="../game-help.js"></script>
 </body>
 
 </html>

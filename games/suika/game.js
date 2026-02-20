@@ -70,11 +70,14 @@
     // ===== 게임 컨테이너 (원작 비율) =====
     // 원작은 세로로 긴 박스 안에서 과일을 떨어뜨림
     function getContainer() {
-        const maxW = Math.min(W() * 0.85, 420);
+        // NEXT 박스 크기를 고려해 우측 여백 확보
+        const nextBoxReserve = Math.max(55, W() * 0.14);
+        const maxW = Math.min(W() - nextBoxReserve * 2, 420);
         const ratio = 1.3; // height / width 비율 (원작 기준)
         const containerH = Math.min(maxW * ratio, H() * 0.78);
         const containerW = containerH / ratio;
-        const x = (W() - containerW) / 2;
+        // 컨테이너를 약간 왼쪽으로 치우쳐 NEXT 공간 확보
+        const x = (W() - containerW - nextBoxReserve) / 2 + 4;
         const y = H() - containerH - H() * 0.04;
         return { x, y, w: containerW, h: containerH };
     }
