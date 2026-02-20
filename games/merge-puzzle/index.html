@@ -20,6 +20,8 @@
 <body>
     <!-- 홈 버튼 -->
     <a href="../../index.html" class="home-btn" id="homeBtn">🏠</a>
+    <!-- 도움말 버튼 -->
+    <button class="help-btn" id="helpBtn">❓</button>
 
     <!-- 배경 오브 -->
     <div class="bg-orbs">
@@ -100,6 +102,83 @@
             <p class="over-score" id="overScore"></p>
             <p class="over-best" id="overBest"></p>
             <button class="game-btn game-btn-primary" id="retryBtn">다시 시작</button>
+        </div>
+    </div>
+
+    <!-- 도움말 모달 -->
+    <div class="game-overlay hidden" id="helpScreen">
+        <div class="help-modal">
+            <button class="help-close" id="helpClose">✖</button>
+            <h2 class="help-title">📖 게임 방법</h2>
+
+            <div class="help-section">
+                <h3>🎯 목표</h3>
+                <p>각 스테이지마다 주어지는 <strong>목표 아이템</strong>을 만들면 클리어!</p>
+            </div>
+
+            <div class="help-section">
+                <h3>🔄 합성 방법</h3>
+                <p><strong>같은 아이템 2개</strong>를 드래그해서 겹치면 <strong>다음 단계</strong>로 진화합니다.</p>
+                <div class="help-chain-example">
+                    <span>🌱</span><span class="help-arrow">→</span>
+                    <span>🌿</span><span class="help-arrow">→</span>
+                    <span>🌷</span><span class="help-arrow">→</span>
+                    <span>🌸</span><span class="help-arrow">→</span>
+                    <span>🌲</span><span class="help-arrow">→</span>
+                    <span>🌳</span>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <h3>👆 조작법</h3>
+                <ul class="help-list">
+                    <li>👉 하단 <strong>생성기 버튼</strong>을 탭하면 해당 계열의 Lv.1 아이템이 랜덤 칸에 생성됩니다</li>
+                    <li>👉 아이템을 <strong>드래그</strong>하여 빈 칸으로 이동하거나, 같은 아이템 위에 놓으면 합성됩니다</li>
+                    <li>👉 합성 가능한 아이템은 <strong>초록색 테두리</strong>로 표시됩니다</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>⚡ 에너지</h3>
+                <p>아이템 생성 시 <strong>1 소모</strong>, 합성 시 <strong>1 회복</strong>. 스테이지 클리어 시 완충됩니다.</p>
+            </div>
+
+            <div class="help-section">
+                <h3>🌟 5가지 아이템 계열</h3>
+                <div class="help-chains">
+                    <div class="help-chain-row">
+                        <span class="help-chain-label">식물</span>
+                        <span>🌱→🌿→🌷→🌸→🌲→🌳</span>
+                    </div>
+                    <div class="help-chain-row">
+                        <span class="help-chain-label">건물</span>
+                        <span>🧱→🏓️→🛖→🏠→🏢→🏰</span>
+                    </div>
+                    <div class="help-chain-row">
+                        <span class="help-chain-label">보석</span>
+                        <span>🪨→💎→💠→👑→🏅→🏆</span>
+                    </div>
+                    <div class="help-chain-row">
+                        <span class="help-chain-label">음식</span>
+                        <span>🌾→🥚→🍞→🧁→🎂→🍰</span>
+                    </div>
+                    <div class="help-chain-row">
+                        <span class="help-chain-label">마법</span>
+                        <span>✨→🔮→⭐→🌙→🪄→📖</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <h3>💡 팁</h3>
+                <ul class="help-list">
+                    <li>같은 계열의 아이템만 합성 가능합니다 (식물+식물 ✅, 식물+건물 ❌)</li>
+                    <li>보드가 가득 차면 게임 오버! 합성으로 공간을 확보하세요</li>
+                    <li>목표 아이템에 집중하면 효율적이에요</li>
+                </ul>
+            </div>
+
+            <button class="game-btn game-btn-primary help-ok-btn" id="helpOkBtn">알겠어요!</button>
         </div>
     </div>
 

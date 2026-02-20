@@ -634,6 +634,24 @@
         initGame();
     });
 
+    // 도움말 모달
+    const helpScreen = $('helpScreen');
+    $('helpBtn').addEventListener('click', () => {
+        helpScreen.classList.remove('hidden');
+    });
+    $('helpClose').addEventListener('click', () => {
+        helpScreen.classList.add('hidden');
+    });
+    $('helpOkBtn').addEventListener('click', () => {
+        helpScreen.classList.add('hidden');
+    });
+    // 모달 배경 클릭 시 닫기
+    helpScreen.addEventListener('click', (e) => {
+        if (e.target === helpScreen) {
+            helpScreen.classList.add('hidden');
+        }
+    });
+
     // ===== 초기 상태 =====
     gameContainer.style.display = 'none';
 
