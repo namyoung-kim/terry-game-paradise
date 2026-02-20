@@ -92,6 +92,13 @@ const GAMES = [
         emoji: '🧩',
         description: '아이템을 합성하여 성장시키자!',
         path: 'games/merge-puzzle/index.html'
+    },
+    {
+        id: 'match3',
+        name: '과일 매치',
+        emoji: '💎',
+        description: '보석 3개를 맞춰 제거하자!',
+        path: 'games/match3/index.html'
     }
 ];
 

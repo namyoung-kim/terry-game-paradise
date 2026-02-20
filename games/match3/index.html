@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>과일 매치 | 태리의 게임천국</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Press+Start+2P&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <a href="../../index.html" class="home-btn" id="homeBtn">🏠</a>
+    <button class="help-btn" id="helpBtn">❓</button>
+
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- 시작 화면 -->
+    <div class="game-overlay" id="startScreen">
+        <div class="game-overlay-content">
+            <div class="start-emoji">💎</div>
+            <h1 class="start-title">과일 매치</h1>
+            <p class="start-desc">보석 3개를 맞춰 제거하자!</p>
+            <div class="start-gems">
+                <span class="gem-preview" style="background:#e74c3c">🔴</span>
+                <span class="gem-preview" style="background:#f39c12">🟠</span>
+                <span class="gem-preview" style="background:#27ae60">🟢</span>
+                <span class="gem-preview" style="background:#3498db">🔵</span>
+                <span class="gem-preview" style="background:#9b59b6">🟣</span>
+                <span class="gem-preview" style="background:#ecf0f1">⚪</span>
+            </div>
+            <button class="game-btn game-btn-primary" id="startBtn">게임 시작</button>
+        </div>
+    </div>
+
+    <!-- 게임 화면 -->
+    <div class="game-container hidden" id="gameContainer">
+        <div class="game-hud">
+            <div class="hud-item">
+                <span class="hud-label">STAGE</span>
+                <span class="hud-value" id="stageNum">1</span>
+            </div>
+            <div class="hud-item hud-goal-box">
+                <span class="hud-label">목표</span>
+                <div class="hud-goals" id="goalDisplay"></div>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">이동</span>
+                <span class="hud-value hud-moves" id="movesNum">25</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">SCORE</span>
+                <span class="hud-value" id="scoreNum">0</span>
+            </div>
+        </div>
+
+        <div class="board-area">
+            <div class="board" id="board"></div>
+        </div>
+
+        <div class="combo-display hidden" id="comboDisplay">
+            <span id="comboText"></span>
+        </div>
+    </div>
+
+    <!-- 스테이지 클리어 -->
+    <div class="game-overlay hidden" id="clearScreen">
+        <div class="game-overlay-content">
+            <div class="clear-emoji">🎉</div>
+            <h2 class="clear-title">스테이지 클리어!</h2>
+            <p class="clear-score" id="clearScore"></p>
+            <div class="clear-stars" id="clearStars"></div>
+            <button class="game-btn game-btn-success" id="nextStageBtn">다음 스테이지</button>
+        </div>
+    </div>
+
+    <!-- 게임 오버 -->
+    <div class="game-overlay hidden" id="overScreen">
+        <div class="game-overlay-content">
+            <div class="over-emoji">😵</div>
+            <h2 class="over-title">이동 횟수 소진!</h2>
+            <p class="over-score" id="overScore"></p>
+            <button class="game-btn game-btn-primary" id="retryBtn">다시 도전</button>
+        </div>
+    </div>
+
+    <!-- 도움말 -->
+    <div class="game-overlay hidden" id="helpScreen">
+        <div class="help-modal">
+            <button class="help-close" id="helpClose">✖</button>
+            <h2 class="help-title">📖 게임 방법</h2>
+            <div class="help-section">
+                <h3>🎯 목표</h3>
+                <p>제한된 이동 횟수 안에 <strong>목표 보석</strong>을 제거하면 클리어!</p>
+            </div>
+            <div class="help-section">
+                <h3>👆 조작법</h3>
+                <ul class="help-list">
+                    <li>👉 인접한 보석 2개를 <strong>스왑</strong> (드래그 또는 클릭 2번)</li>
+                    <li>👉 같은 종류 <strong>3개 이상</strong> 연속으로 맞추면 제거!</li>
+                    <li>👉 매칭이 안 되는 스왑은 되돌아갑니다</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <h3>🌟 특수 아이템</h3>
+                <ul class="help-list">
+                    <li>4개 일렬 → 🔥 <strong>줄무늬 폭탄</strong>: 한 줄 전체 제거</li>
+                    <li>5개 일렬 → 🌈 <strong>무지개</strong>: 같은 종류 모두 제거</li>
+                    <li>L/T자형 → 💣 <strong>폭탄</strong>: 주변 3×3 제거</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <h3>💥 특수 조합</h3>
+                <ul class="help-list">
+                    <li>🔥+🔥 = 십자 제거 | 🔥+💣 = 3줄 폭발</li>
+                    <li>💣+💣 = 5×5 대폭발 | 🌈+🌈 = 전체 제거</li>
+                    <li>🔥+🌈 = 1종류 줄무늬 연쇄 | 💣+🌈 = 1종류 폭탄 연쇄</li>
+                </ul>
+            </div>
+            <button class="game-btn game-btn-primary help-ok-btn" id="helpOkBtn">알겠어요!</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>

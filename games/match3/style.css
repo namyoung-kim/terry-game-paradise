@@ -1,0 +1,568 @@
+/* ===== 과일 매치 — Game Styles ===== */
+html,
+body {
+    overflow: hidden;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.bg-orbs {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+}
+
+.orb-1 {
+    width: 300px;
+    height: 300px;
+    top: 10%;
+    left: 10%;
+    background: rgba(167, 139, 250, 0.08);
+}
+
+.orb-2 {
+    width: 350px;
+    height: 350px;
+    bottom: 20%;
+    right: 5%;
+    background: rgba(244, 114, 182, 0.06);
+}
+
+.orb-3 {
+    width: 250px;
+    height: 250px;
+    top: 5%;
+    right: 30%;
+    background: rgba(96, 165, 250, 0.07);
+}
+
+/* 시작 화면 */
+.start-emoji {
+    font-size: 60px;
+    margin-bottom: 12px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.start-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.start-desc {
+    color: var(--text-secondary);
+    font-size: clamp(0.7rem, 2vw, 0.9rem);
+    margin-bottom: 18px;
+}
+
+.start-gems {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.gem-preview {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+/* 게임 컨테이너 */
+.game-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    padding: 56px 8px 8px;
+    gap: 8px;
+}
+
+.game-container.hidden {
+    display: none;
+}
+
+/* HUD */
+.game-hud {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 420px;
+    flex-wrap: nowrap;
+}
+
+.hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    min-width: 48px;
+}
+
+.hud-goal-box {
+    flex: 1;
+}
+
+.hud-label {
+    font-size: 0.5rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hud-value {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.hud-moves {
+    color: var(--accent-amber);
+}
+
+.hud-goals {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.goal-tag {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 5px;
+    border-radius: 5px;
+    background: rgba(167, 139, 250, 0.1);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    font-size: 0.7rem;
+}
+
+.goal-tag.done {
+    opacity: 0.4;
+    background: rgba(52, 211, 153, 0.1);
+    border-color: rgba(52, 211, 153, 0.2);
+    text-decoration: line-through;
+}
+
+.goal-count {
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+/* 보드 */
+.board-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 3px;
+    width: min(88vw, 400px);
+    height: min(88vw, 400px);
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    position: relative;
+}
+
+/* 셀 */
+.cell {
+    position: relative;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+.cell:active {
+    transform: scale(0.92);
+}
+
+.cell.selected {
+    box-shadow: 0 0 0 2px var(--accent-purple), 0 0 12px rgba(167, 139, 250, 0.4);
+    transform: scale(1.08);
+    z-index: 5;
+}
+
+.cell.hint {
+    animation: hintPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.12);
+    }
+}
+
+/* 보석 */
+.gem {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 4.5vw, 1.6rem);
+    transition: transform 0.2s cubic-bezier(.34, 1.56, .64, 1), opacity 0.2s;
+    position: relative;
+}
+
+.gem::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 20%;
+    width: 30%;
+    height: 30%;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    filter: blur(2px);
+}
+
+/* 특수 아이템 */
+.gem.special-stripe {
+    position: relative;
+}
+
+.gem.special-stripe::before {
+    content: '🔥';
+    position: absolute;
+    font-size: 0.6em;
+    top: -2px;
+    right: -2px;
+}
+
+.gem.special-bomb::before {
+    content: '💣';
+    position: absolute;
+    font-size: 0.6em;
+    top: -2px;
+    right: -2px;
+}
+
+.gem.special-rainbow {
+    background: linear-gradient(135deg, #e74c3c, #f39c12, #27ae60, #3498db, #9b59b6) !important;
+    animation: rainbowShine 2s linear infinite;
+}
+
+.gem.special-rainbow::after {
+    display: none;
+}
+
+@keyframes rainbowShine {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+
+    100% {
+        filter: hue-rotate(360deg);
+    }
+}
+
+/* 매칭/제거 애니메이션 */
+@keyframes matchPop {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.3);
+    }
+
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.gem.matched {
+    animation: matchPop 0.3s ease-out forwards;
+    pointer-events: none;
+}
+
+/* 낙하 애니메이션 */
+@keyframes fallIn {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.gem.falling {
+    animation: fallIn 0.3s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* 스왑 실패 */
+@keyframes shakeBack {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.cell.shake {
+    animation: shakeBack 0.3s ease;
+}
+
+/* 콤보 표시 */
+.combo-display {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+    pointer-events: none;
+}
+
+.combo-display.hidden {
+    display: none;
+}
+
+.combo-display span {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent-amber);
+    text-shadow: 0 2px 12px rgba(251, 191, 36, 0.5);
+    animation: comboPopIn 0.6s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+@keyframes comboPopIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* 버튼들 */
+.help-btn {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 50;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    font-size: 20px;
+    line-height: 44px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: background 0.2s, transform 0.15s;
+    touch-action: manipulation;
+}
+
+.help-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: scale(1.08);
+}
+
+/* 도움말 모달 */
+.help-modal {
+    position: relative;
+    width: min(90vw, 420px);
+    max-height: 80vh;
+    overflow-y: auto;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px 20px;
+    text-align: left;
+}
+
+.help-modal::-webkit-scrollbar {
+    width: 4px;
+}
+
+.help-modal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+.help-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.help-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.help-section {
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.help-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 10px;
+}
+
+.help-section h3 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-purple);
+    margin-bottom: 5px;
+}
+
+.help-section p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.help-section strong {
+    color: var(--text-primary);
+}
+
+.help-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.help-list li {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 3px;
+}
+
+.help-ok-btn {
+    width: 100%;
+    margin-top: 4px;
+}
+
+/* 클리어/오버 */
+.clear-emoji,
+.over-emoji {
+    font-size: 52px;
+    margin-bottom: 10px;
+}
+
+.clear-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent-emerald);
+    margin-bottom: 6px;
+}
+
+.clear-score,
+.over-score {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.clear-stars {
+    font-size: 2rem;
+    margin-bottom: 14px;
+}
+
+.over-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent-pink);
+    margin-bottom: 8px;
+}
