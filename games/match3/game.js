@@ -213,6 +213,9 @@
         createGrid();
         renderBoard();
         renderHUD();
+
+        // 초기 보드에서 가능한 스왕이 없으면 셔플
+        setTimeout(() => checkAndShuffle(), 300);
     }
 
     // ===== 클릭/터치 =====
@@ -657,6 +660,76 @@
             }
         }
         comboCount = 0;
+
+        // 셔플 체크
+        await checkAndShuffle();
+    }
+
+    // ===== 가능한 스왕 체크 =====
+    function hasValidMoves() {
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (!grid[r][c]) continue;
+                // 특수 아이템이 있으면 항상 스왕 가능
+                if (grid[r][c].special !== SPECIAL.NONE) return true;
+
+                // 오른쪽 스왕
+                if (c + 1 < COLS) {
+                    swap(r, c, r, c + 1);
+                    const m = findAllMatches();
+                    swap(r, c, r, c + 1);
+                    if (m && m.cells && m.cells.size > 0) return true;
+                }
+                // 아래쪽 스왕
+                if (r + 1 < ROWS) {
+                    swap(r, c, r + 1, c);
+                    const m = findAllMatches();
+                    swap(r, c, r + 1, c);
+                    if (m && m.cells && m.cells.size > 0) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // ===== 자동 셔플 =====
+    async function checkAndShuffle() {
+        let shuffleCount = 0;
+        while (!hasValidMoves() && shuffleCount < 10) {
+            shuffleCount++;
+            showShuffleMessage();
+            await delay(800);
+            shuffleGrid();
+            renderBoard();
+            await delay(300);
+        }
+    }
+
+    function shuffleGrid() {
+        // 모든 아이템을 모아서 랑덤 재배치
+        const items = [];
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (grid[r][c]) items.push(grid[r][c]);
+            }
+        }
+        // Fisher-Yates 셔플
+        for (let i = items.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [items[i], items[j]] = [items[j], items[i]];
+        }
+        let idx = 0;
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                grid[r][c] = items[idx++];
+            }
+        }
+    }
+
+    function showShuffleMessage() {
+        comboText.textContent = '🔀 보드를 섹는 중...';
+        comboDisplay.classList.remove('hidden');
+        setTimeout(() => comboDisplay.classList.add('hidden'), 700);
     }
 
     // ===== 게임 종료 체크 =====
