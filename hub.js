@@ -78,6 +78,13 @@ const GAMES = [
         emoji: '🧱',
         description: '블록을 쌓아 줄을 완성해라!',
         path: 'games/tetris/index.html'
+    },
+    {
+        id: 'suika',
+        name: '수박게임',
+        emoji: '🍉',
+        description: '같은 과일을 합쳐 수박을 만들자!',
+        path: 'games/suika/index.html'
     }
 ];
 
