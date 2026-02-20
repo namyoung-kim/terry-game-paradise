@@ -91,7 +91,7 @@
 
     // ===== 물리 상수 =====
     const PHYSICS = {
-        gravity: 1800,
+        gravity: 5400,       // 3x faster falling speed
         friction: 0.3,         // 마찰 계수
         restitution: 0.2,      // 반발 계수 (낮을수록 적게 튕김)
         damping: 0.98,         // 속도 감쇠

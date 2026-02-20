@@ -137,6 +137,23 @@
 
     bestScore = parseInt(localStorage.getItem('tetris_best') || '0');
 
+    // ===== 7-Bag Randomizer (standard Tetris fairness) =====
+    let pieceBag = [];
+
+    function fillBag() {
+        pieceBag = [...PIECE_TYPES];
+        // Fisher-Yates shuffle
+        for (let i = pieceBag.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pieceBag[i], pieceBag[j]] = [pieceBag[j], pieceBag[i]];
+        }
+    }
+
+    function randomPiece() {
+        if (pieceBag.length === 0) fillBag();
+        return pieceBag.pop();
+    }
+
     function initGame() {
         board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
         score = 0;
@@ -147,6 +164,7 @@
         lockDelay = 0.5;
         clearingLines = [];
         clearTimer = 0;
+        pieceBag = [];
         nextType = randomPiece();
         spawnPiece();
         calcDropInterval();
@@ -155,10 +173,6 @@
     function calcDropInterval() {
         // Speed increases with level
         dropInterval = Math.max(0.05, 1.0 - (level - 1) * 0.08);
-    }
-
-    function randomPiece() {
-        return PIECE_TYPES[Math.floor(Math.random() * PIECE_TYPES.length)];
     }
 
     function spawnPiece() {
