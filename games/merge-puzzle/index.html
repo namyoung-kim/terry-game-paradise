@@ -4,15 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>머지 퍼즐 | 태리의 게임천국</title>
+    <title>머지 스위츠 | 태리의 게임천국</title>
+    <meta name="description" content="아이템을 합쳐서 빵집을 키워보세요! 머지 스위츠 퍼즐 게임">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Press+Start+2P&display=swap"
-        rel="stylesheet">
-    <link
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../theme.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -25,22 +21,21 @@
 
     <!-- 배경 오브 -->
     <div class="bg-orbs">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
     </div>
 
     <!-- 시작 화면 -->
-    <div class="game-overlay" id="startScreen">
-        <div class="game-overlay-content">
-            <div class="start-emoji">🧩</div>
-            <h1 class="start-title">머지 퍼즐</h1>
-            <p class="start-desc">아이템을 합성하여 성장시키자!</p>
+    <div class="start-screen" id="startScreen">
+        <div class="start-content">
+            <h1 class="start-title">🧁 머지 스위츠</h1>
+            <p class="start-desc">아이템을 합쳐서 빵집을 키워보세요!</p>
             <div class="start-chains">
+                <span>🌾→🍰</span>
                 <span>🌱→🌳</span>
                 <span>🧱→🏰</span>
                 <span>🪨→🏆</span>
-                <span>🌾→🎂</span>
                 <span>✨→📖</span>
             </div>
             <button class="game-btn game-btn-primary" id="startBtn">게임 시작</button>
@@ -49,58 +44,62 @@
 
     <!-- 게임 화면 -->
     <div class="game-container" id="gameContainer">
-        <!-- HUD -->
+        <!-- 상단 HUD: 빵집 + 코인 -->
         <div class="game-hud">
-            <div class="hud-item">
-                <span class="hud-label">STAGE</span>
-                <span class="hud-value" id="stageNum">1</span>
+            <div class="hud-top-row">
+                <div class="hud-shop" id="shopDisplay">
+                    <span class="shop-emoji" id="shopEmoji">🏚️</span>
+                    <div class="shop-info">
+                        <span class="shop-name" id="shopName">낡은 빵집</span>
+                        <span class="shop-level" id="shopLevelNum">Lv.1</span>
+                    </div>
+                </div>
+                <div class="hud-coin" id="coinDisplay">
+                    <span class="coin-icon">💰</span>
+                    <span class="coin-value" id="coinNum">0</span>
+                </div>
             </div>
-            <div class="hud-item hud-goal">
-                <span class="hud-label">목표</span>
-                <div class="hud-goal-items" id="goalItems"></div>
-            </div>
-            <div class="hud-item">
-                <span class="hud-label">SCORE</span>
-                <span class="hud-value" id="scoreNum">0</span>
-            </div>
-        </div>
 
-        <!-- 보드 -->
-        <div class="board-wrapper">
-            <div class="board" id="board"></div>
-        </div>
+            <!-- 주문 패널 -->
+            <div class="orders-panel" id="ordersContainer"></div>
 
-        <!-- 하단 컨트롤 -->
-        <div class="controls">
-            <div class="energy-bar">
-                <span class="energy-label">⚡ 에너지</span>
+            <!-- 에너지 바 -->
+            <div class="energy-row">
+                <span class="energy-label">⚡</span>
                 <div class="energy-track">
                     <div class="energy-fill" id="energyFill"></div>
                 </div>
                 <span class="energy-text" id="energyText">20/20</span>
             </div>
-            <div class="generators" id="generators"></div>
         </div>
-    </div>
 
-    <!-- 스테이지 클리어 -->
-    <div class="game-overlay hidden" id="clearScreen">
-        <div class="game-overlay-content">
-            <div class="clear-emoji">🎉</div>
-            <h2 class="clear-title">스테이지 클리어!</h2>
-            <p class="clear-score" id="clearScore"></p>
-            <button class="game-btn game-btn-success" id="nextStageBtn">다음 스테이지</button>
+        <!-- 보드 -->
+        <div class="board" id="board"></div>
+
+        <!-- 하단: 생성기 + 판매 + 업그레이드 -->
+        <div class="bottom-bar">
+            <div class="generators" id="generators"></div>
+            <div class="bottom-actions">
+                <button class="action-btn sell-btn" id="sellModeBtn">
+                    <span>🗑️</span>
+                    <span>판매</span>
+                </button>
+                <button class="action-btn upgrade-btn" id="upgradeBtn">
+                    <span>⬆️</span>
+                    <span id="upgradeCostText">💰50</span>
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- 게임 오버 -->
     <div class="game-overlay hidden" id="overScreen">
         <div class="game-overlay-content">
-            <div class="over-emoji">😵</div>
+            <div class="over-emoji">😢</div>
             <h2 class="over-title">게임 오버</h2>
-            <p class="over-reason">보드가 가득 찼습니다!</p>
             <p class="over-score" id="overScore"></p>
             <p class="over-best" id="overBest"></p>
+            <p class="over-orders" id="overOrders"></p>
             <button class="game-btn game-btn-primary" id="retryBtn">다시 시작</button>
         </div>
     </div>
@@ -113,54 +112,54 @@
 
             <div class="help-section">
                 <h3>🎯 목표</h3>
-                <p>각 스테이지마다 주어지는 <strong>목표 아이템</strong>을 만들면 클리어!</p>
+                <p>같은 아이템을 <strong>합쳐서</strong> 상위 아이템을 만들고, <strong>손님 주문</strong>을 완성하여 코인을 모으세요! 코인으로 빵집을 업그레이드할 수
+                    있어요.</p>
             </div>
 
             <div class="help-section">
-                <h3>🔄 합성 방법</h3>
-                <p><strong>같은 아이템 2개</strong>를 드래그해서 겹치면 <strong>다음 단계</strong>로 진화합니다.</p>
-                <div class="help-chain-example">
-                    <span>🌱</span><span class="help-arrow">→</span>
-                    <span>🌿</span><span class="help-arrow">→</span>
-                    <span>🌷</span><span class="help-arrow">→</span>
-                    <span>🌸</span><span class="help-arrow">→</span>
-                    <span>🌲</span><span class="help-arrow">→</span>
-                    <span>🌳</span>
-                </div>
+                <h3>🛎️ 주문 시스템</h3>
+                <p>화면 상단에 3개의 주문이 표시됩니다. 요구하는 아이템을 만들면 <strong>자동으로 완성</strong>되고 코인 보상을 받아요.</p>
             </div>
 
             <div class="help-section">
                 <h3>👆 조작법</h3>
                 <ul class="help-list">
-                    <li>👉 하단 <strong>생성기 버튼</strong>을 탭하면 해당 계열의 Lv.1 아이템이 랜덤 칸에 생성됩니다</li>
-                    <li>👉 아이템을 <strong>드래그</strong>하여 빈 칸으로 이동하거나, 같은 아이템 위에 놓으면 합성됩니다</li>
-                    <li>👉 합성 가능한 아이템은 <strong>초록색 테두리</strong>로 표시됩니다</li>
+                    <li>🖱️ 아이템을 <strong>드래그</strong>하여 같은 아이템 위에 놓으면 합성!</li>
+                    <li>🖱️ 빈 칸으로 드래그하면 <strong>이동</strong></li>
+                    <li>🗑️ <strong>판매 모드</strong>에서 아이템을 탭하면 코인으로 판매</li>
                 </ul>
             </div>
 
             <div class="help-section">
                 <h3>⚡ 에너지</h3>
-                <p>아이템 생성 시 <strong>1 소모</strong>, 합성 시 <strong>1 회복</strong>. 스테이지 클리어 시 완충됩니다.</p>
+                <p>아이템 생성 시 <strong>1 소모</strong>, 합성 시 <strong>1 회복</strong>. <strong>30초마다 자동으로 1</strong> 회복됩니다. 빵집
+                    업그레이드 시 최대치가 올라가요!</p>
             </div>
 
             <div class="help-section">
-                <h3>🌟 5가지 아이템 계열</h3>
+                <h3>🏠 빵집 업그레이드</h3>
+                <p>코인을 모아 빵집을 업그레이드하면 <strong>에너지 최대치 증가</strong>, <strong>주문 보상 배율 증가</strong>, <strong>새로운 아이템 종류
+                        해금</strong>!</p>
+            </div>
+
+            <div class="help-section">
+                <h3>🌟 아이템 계열</h3>
                 <div class="help-chains">
+                    <div class="help-chain-row">
+                        <span class="help-chain-label">빵</span>
+                        <span>🌾→🥚→🍞→🧁→🎂→🍰</span>
+                    </div>
                     <div class="help-chain-row">
                         <span class="help-chain-label">식물</span>
                         <span>🌱→🌿→🌷→🌸→🌲→🌳</span>
                     </div>
                     <div class="help-chain-row">
                         <span class="help-chain-label">건물</span>
-                        <span>🧱→🏓️→🛖→🏠→🏢→🏰</span>
+                        <span>🧱→🏚️→🛖→🏠→🏢→🏰</span>
                     </div>
                     <div class="help-chain-row">
                         <span class="help-chain-label">보석</span>
                         <span>🪨→💎→💠→👑→🏅→🏆</span>
-                    </div>
-                    <div class="help-chain-row">
-                        <span class="help-chain-label">음식</span>
-                        <span>🌾→🥚→🍞→🧁→🎂→🍰</span>
                     </div>
                     <div class="help-chain-row">
                         <span class="help-chain-label">마법</span>
@@ -172,9 +171,10 @@
             <div class="help-section">
                 <h3>💡 팁</h3>
                 <ul class="help-list">
-                    <li>같은 계열의 아이템만 합성 가능합니다 (식물+식물 ✅, 식물+건물 ❌)</li>
-                    <li>보드가 가득 차면 게임 오버! 합성으로 공간을 확보하세요</li>
-                    <li>목표 아이템에 집중하면 효율적이에요</li>
+                    <li>같은 계열의 아이템만 합성 가능합니다</li>
+                    <li>보드가 가득 차면 판매 모드로 불필요한 아이템을 정리하세요</li>
+                    <li>주문 아이템에 집중하면 효율적이에요</li>
+                    <li>높은 레벨의 아이템일수록 판매 가격이 높아요</li>
                 </ul>
             </div>
 
