@@ -336,6 +336,7 @@
             orders.push(generateOrder());
         }
 
+        initBoardDOM();
         renderBoard();
         renderHUD();
         renderGenerators();
@@ -454,50 +455,70 @@
         return true;
     }
 
-    // ===== 보드 렌더링 =====
-    function renderBoard() {
+    // ===== 보드 DOM 초기화 (1회) =====
+    function initBoardDOM() {
         board.innerHTML = '';
         for (let i = 0; i < TOTAL_CELLS; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
-            if (sellMode) cell.classList.add('sell-mode');
             cell.dataset.index = i;
 
+            const itemEl = document.createElement('span');
+            itemEl.className = 'item';
+            const levelEl = document.createElement('span');
+            levelEl.className = 'item-level';
+            const extraEl = document.createElement('span');
+            extraEl.className = 'cell-extra';
+
+            cell.appendChild(itemEl);
+            cell.appendChild(levelEl);
+            cell.appendChild(extraEl);
+            board.appendChild(cell);
+        }
+    }
+
+    // ===== 보드 렌더링 (DOM 재활용) =====
+    function renderBoard() {
+        const cells = board.children;
+
+        for (let i = 0; i < TOTAL_CELLS; i++) {
+            const cell = cells[i];
             const cellData = grid[i];
+            const itemEl = cell.children[0];
+            const levelEl = cell.children[1];
+            const extraEl = cell.children[2];
+
+            // 클래스 및 내용 초기화
+            cell.className = 'cell';
+            if (sellMode) cell.classList.add('sell-mode');
+            itemEl.textContent = '';
+            itemEl.className = 'item';
+            levelEl.textContent = '';
+            extraEl.textContent = '';
+            extraEl.className = 'cell-extra';
+
+            if (!cellData) continue;
 
             if (isObstacle(cellData)) {
                 cell.classList.add('obstacle');
-                const itemEl = document.createElement('span');
-                itemEl.className = 'item';
                 itemEl.textContent = '📦';
-                cell.appendChild(itemEl);
-                const hpEl = document.createElement('span');
-                hpEl.className = 'obstacle-hp';
-                hpEl.textContent = `HP:${cellData.hp}`;
-                cell.appendChild(hpEl);
+                extraEl.className = 'obstacle-hp';
+                extraEl.textContent = `HP:${cellData.hp}`;
             } else if (isStar(cellData)) {
-                const itemEl = document.createElement('span');
                 itemEl.className = 'item star-item';
                 itemEl.textContent = STAR_ITEM.emoji;
-                cell.appendChild(itemEl);
                 if (sellMode) {
-                    const priceTag = document.createElement('span');
-                    priceTag.className = 'sell-price';
-                    priceTag.textContent = `💰${STAR_ITEM.sellPrice}`;
-                    cell.appendChild(priceTag);
+                    extraEl.className = 'sell-price';
+                    extraEl.textContent = `💰${STAR_ITEM.sellPrice}`;
                 }
             } else if (isBubble(cellData)) {
                 cell.classList.add('bubble');
                 const chainData = CHAINS[cellData.chain];
                 const itemData = chainData.items[cellData.level];
-                const itemEl = document.createElement('span');
                 itemEl.className = 'item bubble-item';
                 itemEl.textContent = itemData.emoji;
-                cell.appendChild(itemEl);
-                const timerEl = document.createElement('span');
-                timerEl.className = 'bubble-timer';
-                timerEl.textContent = `${cellData.lifetime}s`;
-                cell.appendChild(timerEl);
+                extraEl.className = 'bubble-timer';
+                extraEl.textContent = `${cellData.lifetime}s`;
             } else if (isItem(cellData)) {
                 const chainData = CHAINS[cellData.chain];
                 const itemData = chainData.items[cellData.level];
@@ -506,30 +527,14 @@
                     cell.classList.add('locked');
                 }
 
-                const itemEl = document.createElement('span');
-                itemEl.className = 'item';
                 itemEl.textContent = itemData.emoji;
-
-                const levelEl = document.createElement('span');
-                levelEl.className = 'item-level';
                 levelEl.textContent = `Lv.${cellData.level + 1}`;
 
-                cell.appendChild(itemEl);
-                cell.appendChild(levelEl);
-
                 if (sellMode && !cellData.locked) {
-                    const priceTag = document.createElement('span');
-                    priceTag.className = 'sell-price';
-                    priceTag.textContent = `💰${itemData.sellPrice}`;
-                    cell.appendChild(priceTag);
+                    extraEl.className = 'sell-price';
+                    extraEl.textContent = `💰${itemData.sellPrice}`;
                 }
             }
-
-            // 이벤트
-            cell.addEventListener('mousedown', (e) => onDragStart(e, i));
-            cell.addEventListener('touchstart', (e) => onTouchStart(e, i), { passive: false });
-
-            board.appendChild(cell);
         }
     }
 
@@ -630,7 +635,7 @@
         let count = 0;
         for (let i = 0; i < TOTAL_CELLS; i++) {
             const cell = grid[i];
-            if (isItem(cell) && cell.chain === chainIdx && cell.level === level) {
+            if (isItem(cell) && !cell.locked && cell.chain === chainIdx && cell.level === level) {
                 count++;
             }
         }
@@ -646,7 +651,7 @@
         order.goals.forEach(goal => {
             let remaining = goal.count;
             for (let i = 0; i < TOTAL_CELLS && remaining > 0; i++) {
-                if (isItem(grid[i]) && grid[i].chain === goal.chain && grid[i].level === goal.level) {
+                if (isItem(grid[i]) && !grid[i].locked && grid[i].chain === goal.chain && grid[i].level === goal.level) {
                     grid[i] = null;
                     remaining--;
                 }
@@ -997,15 +1002,24 @@
     function checkGameOver() {
         if (getEmptyCells().length > 0) return;
 
-        // 합성 가능한 쌍이 있는지 체크
+        // 해시맵 기반 O(n) 스캔: 같은 종류-레벨 아이템이 2개 이상 + 1개 이상 이동 가능하면 계속
+        const itemMap = new Map();
         for (let i = 0; i < TOTAL_CELLS; i++) {
-            if (!isItem(grid[i])) continue;
-            const adj = getAdjacentCells(i);
-            for (const n of adj) {
-                if (canMerge(grid[i], grid[n])) {
-                    return; // 합성 가능 → 아직 끝 아님
-                }
+            const cell = grid[i];
+            if (!isItem(cell)) continue;
+            if (cell.level >= CHAINS[cell.chain].items.length - 1) continue;
+
+            const key = `${cell.chain}-${cell.level}`;
+            if (!itemMap.has(key)) {
+                itemMap.set(key, { total: 0, movable: 0 });
             }
+            const entry = itemMap.get(key);
+            entry.total++;
+            if (!cell.locked) entry.movable++;
+        }
+
+        for (const [, entry] of itemMap) {
+            if (entry.total >= 2 && entry.movable >= 1) return;
         }
 
         setTimeout(() => showGameOver(), 300);
@@ -1271,6 +1285,18 @@
             helpScreen.classList.add('hidden');
         }
     });
+
+    // ===== 보드 이벤트 위임 (1회 등록) =====
+    board.addEventListener('mousedown', (e) => {
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+        onDragStart(e, parseInt(cell.dataset.index));
+    });
+    board.addEventListener('touchstart', (e) => {
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+        onTouchStart(e, parseInt(cell.dataset.index));
+    }, { passive: false });
 
     // ===== 초기 상태 =====
     gameContainer.style.display = 'none';
