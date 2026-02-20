@@ -109,7 +109,7 @@
     ];
 
     // 경험치(별) 특수 아이템 — 보상용
-    const STAR_ITEM = { emoji: '⭐', name: '경험치별', sellPrice: 3 };
+    const STAR_ITEM = { emoji: '🌟', name: '경험치별', sellPrice: 3 };
 
     // ===== 빵집 레벨 데이터 =====
     const SHOP_LEVELS = [
