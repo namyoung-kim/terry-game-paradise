@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>머지 퍼즐 | 태리의 게임천국</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Press+Start+2P&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- 홈 버튼 -->
+    <a href="../../index.html" class="home-btn" id="homeBtn">🏠</a>
+
+    <!-- 배경 오브 -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- 시작 화면 -->
+    <div class="game-overlay" id="startScreen">
+        <div class="game-overlay-content">
+            <div class="start-emoji">🧩</div>
+            <h1 class="start-title">머지 퍼즐</h1>
+            <p class="start-desc">아이템을 합성하여 성장시키자!</p>
+            <div class="start-chains">
+                <span>🌱→🌳</span>
+                <span>🧱→🏰</span>
+                <span>🪨→🏆</span>
+                <span>🌾→🎂</span>
+                <span>✨→📖</span>
+            </div>
+            <button class="game-btn game-btn-primary" id="startBtn">게임 시작</button>
+        </div>
+    </div>
+
+    <!-- 게임 화면 -->
+    <div class="game-container" id="gameContainer">
+        <!-- HUD -->
+        <div class="game-hud">
+            <div class="hud-item">
+                <span class="hud-label">STAGE</span>
+                <span class="hud-value" id="stageNum">1</span>
+            </div>
+            <div class="hud-item hud-goal">
+                <span class="hud-label">목표</span>
+                <div class="hud-goal-items" id="goalItems"></div>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">SCORE</span>
+                <span class="hud-value" id="scoreNum">0</span>
+            </div>
+        </div>
+
+        <!-- 보드 -->
+        <div class="board-wrapper">
+            <div class="board" id="board"></div>
+        </div>
+
+        <!-- 하단 컨트롤 -->
+        <div class="controls">
+            <div class="energy-bar">
+                <span class="energy-label">⚡ 에너지</span>
+                <div class="energy-track">
+                    <div class="energy-fill" id="energyFill"></div>
+                </div>
+                <span class="energy-text" id="energyText">20/20</span>
+            </div>
+            <div class="generators" id="generators"></div>
+        </div>
+    </div>
+
+    <!-- 스테이지 클리어 -->
+    <div class="game-overlay hidden" id="clearScreen">
+        <div class="game-overlay-content">
+            <div class="clear-emoji">🎉</div>
+            <h2 class="clear-title">스테이지 클리어!</h2>
+            <p class="clear-score" id="clearScore"></p>
+            <button class="game-btn game-btn-success" id="nextStageBtn">다음 스테이지</button>
+        </div>
+    </div>
+
+    <!-- 게임 오버 -->
+    <div class="game-overlay hidden" id="overScreen">
+        <div class="game-overlay-content">
+            <div class="over-emoji">😵</div>
+            <h2 class="over-title">게임 오버</h2>
+            <p class="over-reason">보드가 가득 찼습니다!</p>
+            <p class="over-score" id="overScore"></p>
+            <p class="over-best" id="overBest"></p>
+            <button class="game-btn game-btn-primary" id="retryBtn">다시 시작</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>

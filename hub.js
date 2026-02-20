@@ -85,6 +85,13 @@ const GAMES = [
         emoji: '🍉',
         description: '같은 과일을 합쳐 수박을 만들자!',
         path: 'games/suika/index.html'
+    },
+    {
+        id: 'merge-puzzle',
+        name: '머지 퍼즐',
+        emoji: '🧩',
+        description: '아이템을 합성하여 성장시키자!',
+        path: 'games/merge-puzzle/index.html'
     }
 ];
 
