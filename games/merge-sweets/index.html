@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>머지스위츠 | 태리의 게임천국</title>
+    <meta name="description" content="전략적 두뇌 플레이! 결정론적 스테이지 머지 퍼즐">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- 홈 버튼 -->
+    <a href="../../index.html" class="home-btn" id="homeBtn">🏠</a>
+
+    <!-- 배경 오브 -->
+    <div class="bg-orbs">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+    </div>
+
+    <!-- ========== 스테이지 선택 화면 ========== -->
+    <div class="screen active" id="stageSelectScreen">
+        <div class="screen-inner">
+            <h1 class="game-logo">🧁 머지스위츠</h1>
+            <p class="game-subtitle">전략적 두뇌 플레이 <span class="bg-inv-badge" id="bgInvCount" style="display:none"></span>
+            </p>
+            <div class="stage-list" id="stageList"></div>
+        </div>
+    </div>
+
+    <!-- ========== 매니저 선택 화면 ========== -->
+    <div class="screen" id="managerScreen">
+        <div class="screen-inner">
+            <h2 class="section-title">🧑‍🍳 매니저 선택 <span class="pick-count" id="pickCount">(0/2)</span></h2>
+            <p class="section-desc">스테이지에서 사용할 매니저 2명을 선택하세요</p>
+            <div class="manager-grid" id="managerGrid"></div>
+            <button class="btn-primary" id="startStageBtn" disabled>출발! 🚀</button>
+        </div>
+    </div>
+
+    <!-- ========== 게임 플레이 화면 ========== -->
+    <div class="screen" id="gameScreen">
+        <!-- 상단 HUD -->
+        <div class="game-hud">
+            <div class="hud-row">
+                <div class="hud-stage" id="hudStage">Stage 1</div>
+                <div class="hud-ap">
+                    <span class="ap-icon">⚡</span>
+                    <span class="ap-value" id="hudAP">30</span>
+                </div>
+            </div>
+            <!-- 목표 -->
+            <div class="hud-objective" id="hudObjective"></div>
+        </div>
+
+        <!-- 아이템 큐 미리보기 -->
+        <div class="queue-panel">
+            <span class="queue-label">NEXT</span>
+            <div class="queue-items" id="queueItems"></div>
+        </div>
+
+        <!-- 7x9 보드 -->
+        <div class="board-wrapper">
+            <div class="board" id="board"></div>
+        </div>
+
+        <!-- 하단 액션바 -->
+        <div class="action-bar">
+            <div class="gen-buttons" id="genButtons"></div>
+            <div class="skill-buttons" id="skillButtons"></div>
+        </div>
+
+        <!-- 방랑고양이 패널 -->
+        <div class="cat-panel hidden" id="catPanel">
+            <div class="cat-avatar">🐱</div>
+            <div class="cat-speech">
+                <p>아이템 3개를 주면</p>
+                <p><strong>AP 1개</strong> 또는 <strong>거미줄 해제</strong>를 해줄게!</p>
+            </div>
+            <div class="cat-slots" id="catSlots">
+                <div class="cat-slot" data-idx="0"></div>
+                <div class="cat-slot" data-idx="1"></div>
+                <div class="cat-slot" data-idx="2"></div>
+            </div>
+            <div class="cat-actions">
+                <button class="btn-cat" id="catAPBtn" disabled>⚡ AP +1</button>
+                <button class="btn-cat" id="catWebBtn" disabled>🕸️ 거미줄 해제</button>
+                <button class="btn-cat-cancel" id="catCancelBtn">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 보드게임 구역 ========== -->
+    <div class="screen" id="boardGameScreen">
+        <div class="screen-inner bg-screen-inner">
+            <h2 class="bg-title">🎲 보드게임 구역</h2>
+            <p class="bg-subtitle">카드를 선택하여 보상 타일에 도착하세요!</p>
+
+            <!-- 타일 보드 -->
+            <div class="bg-board-wrapper">
+                <div class="bg-board" id="bgBoard"></div>
+            </div>
+
+            <!-- 카드 패 -->
+            <div class="bg-section">
+                <span class="bg-section-label">🃏 카드</span>
+                <div class="bg-deck" id="bgDeck"></div>
+            </div>
+
+            <!-- 획득 보상 -->
+            <div class="bg-section">
+                <span class="bg-section-label">🎁 획득 보상</span>
+                <div class="bg-rewards" id="bgRewards"></div>
+            </div>
+
+            <!-- 행동 로그 -->
+            <div class="bg-log" id="bgLog"></div>
+
+            <button class="btn-secondary bg-finish-btn" id="bgFinishBtn">보드게임 종료 →</button>
+        </div>
+    </div>
+
+    <!-- ========== 클리어 오버레이 ========== -->
+    <div class="game-overlay hidden" id="clearOverlay">
+        <div class="game-overlay-content">
+            <div class="clear-emoji">🎉</div>
+            <h2 class="clear-title">Stage Clear!</h2>
+            <p class="clear-detail" id="clearDetail"></p>
+            <div class="clear-stars" id="clearStars"></div>
+            <button class="btn-primary" id="nextStageBtn">다음 스테이지 →</button>
+            <button class="btn-secondary bg-enter-btn" id="bgEnterBtn" style="display:none">🎲 보드게임 구역</button>
+        </div>
+    </div>
+
+    <!-- ========== 실패 오버레이 ========== -->
+    <div class="game-overlay hidden" id="failOverlay">
+        <div class="game-overlay-content">
+            <div class="fail-emoji">😿</div>
+            <h2 class="fail-title">Stage Failed</h2>
+            <p class="fail-reason" id="failReason"></p>
+            <div class="fail-actions">
+                <button class="btn-primary" id="retryBtn">다시 도전 🔄</button>
+                <button class="btn-secondary" id="backToStagesBtn">스테이지 선택</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 도움말 오버레이 ========== -->
+    <div class="game-overlay hidden" id="helpOverlay">
+        <div class="help-modal">
+            <button class="help-close" id="helpClose">✖</button>
+            <h2 class="help-title">📖 게임 방법</h2>
+
+            <div class="help-section">
+                <h3>🎯 목표</h3>
+                <p>스테이지 <strong>목표 아이템</strong>을 만들면 클리어! AP가 바닥나거나 보드가 꽉 차면 실패합니다.</p>
+            </div>
+
+            <div class="help-section">
+                <h3>⚡ AP (Action Point)</h3>
+                <ul>
+                    <li>생성기 탭 → AP 1 소모</li>
+                    <li>아이템 이동 → AP 1 소모</li>
+                    <li>AP는 회복 불가 (방랑고양이 제외)</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>🧁 아이템 체인</h3>
+                <div class="help-chain-row"><span class="help-chain-label">빵</span><span>🌾→🫗→🍞→🥖→🎂</span></div>
+                <div class="help-chain-row"><span class="help-chain-label">과일</span><span>🍒→🍓→🍇→🍋</span></div>
+            </div>
+
+            <div class="help-section">
+                <h3>🕸️ 거미줄</h3>
+                <p>거미줄 안의 아이템과 <strong>같은 아이템</strong>을 바깥에서 인접하게 머지하면 해제됩니다.</p>
+            </div>
+
+            <div class="help-section">
+                <h3>🧑‍🍳 매니저 스킬</h3>
+                <ul>
+                    <li><strong>차원교환</strong> — 두 아이템 위치 교환 (AP 무소모)</li>
+                    <li><strong>한계압축</strong> — L1 아이템 2개를 한 슬롯에 스택</li>
+                    <li><strong>큐 삭제</strong> — 큐에서 원치 않는 아이템 1개 삭제</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>🐱 방랑고양이</h3>
+                <p>AP가 부족할 때 등장! 아이템 3개를 주면 AP 1 회수 또는 거미줄 해제.</p>
+            </div>
+
+            <button class="btn-primary help-ok" id="helpOkBtn">알겠어요!</button>
+        </div>
+    </div>
+
+    <!-- 도움말 버튼 (고정) -->
+    <button class="floating-help-btn" id="helpBtn">❓</button>
+
+    <script src="game.js"></script>
+</body>
+
+</html>
