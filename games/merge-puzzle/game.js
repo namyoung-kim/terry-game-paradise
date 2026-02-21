@@ -14,7 +14,7 @@
     const MAX_ORDERS = 3;
     const ORDER_RESPAWN_DELAY = 3000; // 3초
 
-    const GENERATOR_COOLDOWN = 3600; // 60분 (초 단위)
+    const GENERATOR_COOLDOWN = 300; // 5분 (초 단위)
     const GENERATOR_MAX_CAPACITY = 5;
 
     const BUBBLE_LIFETIME = 60; // 60초
@@ -831,8 +831,8 @@
         // 3. 주문 체크
         renderOrders();
 
-        // 4. 게임오버 체크
-        checkGameOver();
+        // 4. 게임오버 체크 (렌더링 완료 후)
+        setTimeout(() => checkGameOver(), 350);
 
         return true;
     }
@@ -1166,6 +1166,15 @@
     }
 
     function getCellAtPoint(x, y) {
+        // Primary: use elementFromPoint for accuracy
+        const el = document.elementFromPoint(x, y);
+        if (el) {
+            const cell = el.closest('.cell');
+            if (cell && cell.dataset.index !== undefined) {
+                return parseInt(cell.dataset.index);
+            }
+        }
+        // Fallback: bounding rect scan
         const cells = board.querySelectorAll('.cell');
         for (let i = 0; i < cells.length; i++) {
             const rect = cells[i].getBoundingClientRect();
@@ -1290,13 +1299,27 @@
     board.addEventListener('mousedown', (e) => {
         const cell = e.target.closest('.cell');
         if (!cell) return;
-        onDragStart(e, parseInt(cell.dataset.index));
+        const idx = parseInt(cell.dataset.index);
+        if (isNaN(idx)) return;
+        onDragStart(e, idx);
     });
     board.addEventListener('touchstart', (e) => {
         const cell = e.target.closest('.cell');
         if (!cell) return;
-        onTouchStart(e, parseInt(cell.dataset.index));
+        const idx = parseInt(cell.dataset.index);
+        if (isNaN(idx)) return;
+        onTouchStart(e, idx);
     }, { passive: false });
+
+    // 판매 모드: click 이벤트로도 판매 (mousedown이 안 잡힐 경우 보충)
+    board.addEventListener('click', (e) => {
+        if (!sellMode) return;
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+        const idx = parseInt(cell.dataset.index);
+        if (isNaN(idx)) return;
+        sellItem(idx);
+    });
 
     // ===== 초기 상태 =====
     gameContainer.style.display = 'none';
