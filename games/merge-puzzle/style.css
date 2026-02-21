@@ -759,6 +759,15 @@ body {
     color: #ef4444;
 }
 
+.sell-stars-btn {
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.sell-stars-btn:hover {
+    border-color: rgba(251, 191, 36, 0.5);
+    background: rgba(251, 191, 36, 0.1);
+}
+
 .upgrade-btn {
     border-color: rgba(52, 211, 153, 0.2);
 }

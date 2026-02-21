@@ -10,14 +10,14 @@
     const BASE_MAX_ENERGY = 100;
     const ENERGY_PER_LEVEL = 10;
     const ENERGY_COST = 1;
-    const ENERGY_REGEN_INTERVAL = 120; // 2분 (초 단위)
+    const ENERGY_REGEN_INTERVAL = 45;  // 45초 (초 단위)
     const MAX_ORDERS = 3;
-    const ORDER_RESPAWN_DELAY = 3000; // 3초
+    const ORDER_RESPAWN_DELAY = 2000; // 2초
 
-    const GENERATOR_COOLDOWN = 300; // 5분 (초 단위)
-    const GENERATOR_MAX_CAPACITY = 5;
+    const GENERATOR_COOLDOWN = 90;  // 1분 30초 (초 단위)
+    const GENERATOR_MAX_CAPACITY = 8;
 
-    const BUBBLE_LIFETIME = 60; // 60초
+    const BUBBLE_LIFETIME = 45; // 45초
 
     // ===== 아이템 체인 데이터 =====
     const CHAINS = [
@@ -858,19 +858,19 @@
     // 인접 장애물 파괴
     function destroyAdjacentObstacles(idx) {
         const adj = getAdjacentCells(idx);
-        let destroyed = false;
+        let changed = false;
 
         adj.forEach(adjIdx => {
             if (isObstacle(grid[adjIdx])) {
                 grid[adjIdx].hp--;
+                changed = true;
                 if (grid[adjIdx].hp <= 0) {
                     grid[adjIdx] = null; // 파괴 → 빈 타일
-                    destroyed = true;
                 }
             }
         });
 
-        if (destroyed) {
+        if (changed) {
             renderBoard();
         }
     }
@@ -949,6 +949,26 @@
             renderOrders();
             saveProgress();
         }, 300);
+    }
+
+    // ===== 별(🌟) 전체 판매 =====
+    function sellAllStars() {
+        let totalPrice = 0;
+        let count = 0;
+        for (let i = 0; i < TOTAL_CELLS; i++) {
+            if (isStar(grid[i])) {
+                totalPrice += STAR_ITEM.sellPrice;
+                grid[i] = null;
+                count++;
+            }
+        }
+        if (count === 0) return;
+        coins += totalPrice;
+        showCoinFloat(totalPrice);
+        renderBoard();
+        renderHUD();
+        renderOrders();
+        saveProgress();
     }
 
     // ===== 빵집 업그레이드 =====
@@ -1277,6 +1297,7 @@
 
     upgradeBtn.addEventListener('click', upgradeShop);
     sellModeBtn.addEventListener('click', toggleSellMode);
+    $('sellAllStarsBtn').addEventListener('click', sellAllStars);
 
     // 도움말 모달
     const helpScreen = $('helpScreen');

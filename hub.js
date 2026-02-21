@@ -87,10 +87,17 @@ const GAMES = [
         path: 'games/suika/index.html'
     },
     {
+        id: 'merge-sweets',
+        name: '머지스위츠',
+        emoji: '🧁',
+        description: '전략적 두뇌 플레이! 스테이지 퍼즐',
+        path: 'games/merge-sweets/index.html'
+    },
+    {
         id: 'merge-puzzle',
         name: '머지 퍼즐',
-        emoji: '🧩',
-        description: '아이템을 합성하여 성장시키자!',
+        emoji: '🍰',
+        description: '합성하고, 주문하고, 빵집을 키우자!',
         path: 'games/merge-puzzle/index.html'
     },
     {
